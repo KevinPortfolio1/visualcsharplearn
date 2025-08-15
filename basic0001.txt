@@ -1,0 +1,333 @@
+visual c#
+
+整數變數（Integer Variables）
+🔹 常見型別：
+型別	位元數				範圍							說明
+byte	8					0 ~ 255							無符號整數
+sbyte	8					-128 ~ 127						有符號整數
+short	16					-32,768 ~ 32,767				有符號整數
+ushort	16					0 ~ 65,535						無符號整數
+int		32					-2,147,483,648 ~ 2,147,483,647	常用整數型別
+uint	32					0 ~ 4,294,967,295				無符號整數
+long	64					約 ±9 × 10¹⁸						更大整數
+ulong	64					0 ~ 約 1.8 × 10¹⁹				更大無符號整數
+
+浮點數變數（Floating-Point Variables）
+🔹 常見型別：
+型別	位元數			精度			範圍						說明
+float	32				~7 位數字		±1.5 × 10⁻⁴⁵ ~ ±3.4 × 10³⁸	單精度浮點數
+double	64				~15-16 位數		±5.0 × 10⁻³²⁴ ~ ±1.7 × 10³⁰⁸	雙精度浮點數（預設）
+decimal	128				28-29 位數		±1.0 × 10⁻²⁸ ~ ±7.9 × 10²⁸	高精度（常用於財務）
+
+輸入輸出檢查
+
+項目			try-catch						TryParse
+錯誤處理方式	透過例外處理（Exception）		回傳 true/false，無例外
+效率			慢（例外處理成本高）			快（效能好，無需建立例外）
+是否推薦常用？	❌ 不推薦做「常規輸入驗證」		✅ 推薦用來驗證使用者輸入
+適合場景		不可預測錯誤、處理異常流程		使用者輸入、批量資料處理、效能敏感場景
+較新手友好？	容易出錯、不建議濫用			結構簡單，容易維護
+
+類型			方法 / 技術					用途範例
+命令列輸入		Console.ReadLine()			小型工具、練習程式
+GUI 表單輸入	TextBox.Text				WinForms / WPF
+網頁表單輸入	HTML <form> + C# 控制器		ASP.NET MVC / Razor
+參數輸入		Main(string[] args)			工具程式、CLI 工具
+檔案輸入		File.ReadAllText()			讀設定、匯入資料
+JSON/XML 輸入	JsonSerializer / XmlReader	API、設定、檔案
+資料庫輸入		SQL + ADO.NET				企業應用
+
+1. 輸入（Input）要注意的：
+
+資料驗證
+	使用者輸入往往不可靠，要驗證格式（整數、小數、日期、字串長度等）
+	盡量用 TryParse 這類安全方法避免例外
+
+輸入範圍限制
+	數字要在合理範圍內（例如：年齡 0120，成績 0100）
+
+錯誤提示
+	當輸入不合法，給清楚、友善的錯誤訊息，並允許重輸
+
+防止空值/Null
+	防止空輸入造成錯誤或例外
+
+避免注入攻擊（針對網頁或資料庫輸入）
+	例如 SQL Injection、XSS 攻擊
+
+輸入格式一致性
+	日期、時間、數字格式要明確指定
+
+2. 處理（Processing）要注意的：
+
+邏輯正確
+	確保處理流程符合業務規則
+
+例外處理
+	可能有的錯誤狀況（檔案讀取失敗、網路斷線）用 try-catch 處理，防止程式崩潰
+
+資料型別轉換
+	注意轉換精度與溢位，避免資料錯誤
+
+效能考量
+	大量資料處理時避免不必要重複計算或I/O
+
+邏輯清晰、易維護
+	拆成函式/方法，提高可讀性和重用性
+
+安全性
+	處理敏感資料時注意加密、驗證、權限控管
+
+3. 輸出（Output）要注意的：
+
+格式化輸出
+	輸出時數字、日期格式應易懂且符合使用者習慣
+
+避免資訊外洩
+	不要輸出敏感資料（密碼、個資等）
+
+錯誤訊息友善
+	不直接暴露系統錯誤細節，避免攻擊者利用
+
+使用者體驗
+	輸出結果應清楚明確，必要時可提供操作建議或下一步
+
+記錄日誌
+	重要操作和錯誤最好有紀錄（log）以利追蹤
+	
+簡單的流程
+ using System;
+
+class Program
+{
+    static void Main()
+    {
+        int age;
+
+        while (true)
+        {
+            Console.Write("請輸入年齡（0~120）：");
+            string input = Console.ReadLine();
+
+            if (!int.TryParse(input, out age))
+            {
+                Console.WriteLine("錯誤：請輸入有效的整數！");
+                continue;
+            }
+
+            if (age < 0 || age > 120)
+            {
+                Console.WriteLine("錯誤：年齡必須在 0 到 120 之間！");
+                continue;
+            }
+
+            break;  // 輸入正確，跳出迴圈
+        }
+
+        // 處理
+        string category = age < 18 ? "未成年" : "成人";
+
+        // 輸出
+        Console.WriteLine($"你的年齡是 {age}，分類為：{category}");
+    }
+}
+
+1. 讀寫檔案（File I/O）
+注意事項：
+
+讀取
+
+檔案是否存在：使用前先檢查檔案存在性，避免例外
+檔案存取權限：確保程式有權限讀寫
+資料格式：讀取時確認格式與編碼（UTF-8、ASCII 等）
+例外處理：捕捉 IOException、FileNotFoundException 等
+檔案鎖定問題：避免同時多重存取造成衝突
+
+寫入
+
+寫入方式：覆寫或附加（File.WriteAllText vs File.AppendAllText）
+同步/非同步：大量資料建議使用非同步寫入避免阻塞
+確保資料完整性：寫入時可先寫入暫存檔，再改名避免資料遺失
+例外處理
+
+簡單範例：
+
+using System;
+using System.IO;
+
+class Program
+{
+    static void Main()
+    {
+        string path = "data.txt";
+
+        try
+        {
+            // 讀檔
+            if (File.Exists(path))
+            {
+                string content = File.ReadAllText(path);
+                Console.WriteLine("檔案內容：\n" + content);
+            }
+            else
+            {
+                Console.WriteLine("檔案不存在！");
+            }
+
+            // 寫檔
+            File.WriteAllText(path, "Hello, world!");
+            Console.WriteLine("已寫入檔案。");
+        }
+        catch (IOException ex)
+        {
+            Console.WriteLine("檔案操作錯誤：" + ex.Message);
+        }
+    }
+}
+
+2. 資料庫存取（Database Access）
+
+注意事項：
+
+連線字串安全：避免硬編碼，建議使用加密設定或安全儲存
+連線管理：使用 using 自動關閉連線，避免連線泄漏
+SQL 注入防範：使用參數化查詢或 ORM（例如 Entity Framework）
+錯誤處理：捕捉資料庫連線、查詢異常
+效能考量：避免不必要的查詢，多用索引與最佳化 SQL
+交易管理（Transaction）：確保多筆操作的一致性
+
+using System;
+using System.Data.SqlClient;
+
+class Program
+{
+    static void Main()
+    {
+        string connStr = "Server=.;Database=TestDB;Trusted_Connection=True;";
+        string sql = "SELECT Name FROM Users WHERE Id = @id";
+
+        try
+        {
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", 1);
+                    var name = cmd.ExecuteScalar() as string;
+                    Console.WriteLine("使用者名稱：" + name);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("資料庫錯誤：" + ex.Message);
+        }
+    }
+}
+
+
+3. API 呼叫（Web API 存取）
+注意事項：
+
+非同步呼叫：使用 async / await 進行非同步處理
+錯誤處理：檢查 HTTP 狀態碼，處理連線失敗或錯誤回應
+資料格式：JSON / XML 格式解析（使用 System.Text.Json 或 Newtonsoft.Json）
+授權驗證：API Key、OAuth 等安全控管
+重試機制：網路不穩定時建議重試機制
+超時設定：避免無限等待回應
+
+using System;
+using System.Net.Http;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main()
+    {
+        string url = "https://jsonplaceholder.typicode.com/todos/1";
+
+        using HttpClient client = new HttpClient();
+
+        try
+        {
+            HttpResponseMessage response = await client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            string json = await response.Content.ReadAsStringAsync();
+
+            var todo = JsonSerializer.Deserialize<Todo>(json);
+
+            Console.WriteLine($"標題：{todo.Title}, 完成：{todo.Completed}");
+        }
+        catch (HttpRequestException e)
+        {
+            Console.WriteLine("API 呼叫失敗：" + e.Message);
+        }
+    }
+}
+
+public class Todo
+{
+    public int UserId { get; set; }
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public bool Completed { get; set; }
+}
+
+格式類型	讀取方法									編碼設定				特殊注意點
+純文字檔	File.ReadAllText							可指定 Encoding			換行符、Unicode BOM
+
+
+File.WriteAllText("file.txt", content, Encoding.UTF8);
+string text = File.ReadAllText("file.txt", Encoding.UTF8);
+
+
+二進位檔	FileStream, BinaryReader					無						知道資料結構
+
+using (FileStream fs = new FileStream("data.bin", FileMode.Create))
+using (BinaryWriter writer = new BinaryWriter(fs))
+{
+    writer.Write(123);          // 寫入 int
+    writer.Write("hello");      // 寫入字串
+}
+
+
+CSV			讀文字檔並 Split(',')						同純文字檔				轉義雙引號與逗號
+
+string[] lines = File.ReadAllLines("data.csv");
+foreach (var line in lines)
+{
+    string[] fields = line.Split(',');
+    // 處理 fields
+}
+
+JSON		System.Text.Json 或 Newtonsoft.Json			UTF-8 常用				結構化物件
+
+var obj = new { Name = "John", Age = 30 };
+string jsonString = JsonSerializer.Serialize(obj);
+File.WriteAllText("data.json", jsonString);
+
+string readJson = File.ReadAllText("data.json");
+var obj2 = JsonSerializer.Deserialize<YourClass>(readJson);
+
+XML			XmlSerializer, XmlReader					UTF-8/Unicode			標記式結構
+
+XmlSerializer serializer = new XmlSerializer(typeof(YourClass));
+using (FileStream fs = new FileStream("data.xml", FileMode.Create))
+{
+    serializer.Serialize(fs, yourObject);
+}
+
+using (FileStream fs = new FileStream("data.xml", FileMode.Open))
+{
+    YourClass obj = (YourClass)serializer.Deserialize(fs);
+}
+
+INI			自行解析或第三方庫							同純文字檔				區段與鍵值對
+
+
+
+
+
