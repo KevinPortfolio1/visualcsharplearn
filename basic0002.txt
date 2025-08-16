@@ -1,0 +1,54 @@
+常用資料結構類別一覽（泛型）
+資料結構類型			類別名稱						說明
+動態陣列				List<T>							可變長度、有順序、可重複
+雙向鏈結串列			LinkedList<T>					雙向指標，可快速插入刪除
+雜湊集合				HashSet<T>						無順序、不重複元素
+排序集合				SortedSet<T>					自動排序、不重複
+雜湊字典				Dictionary<TKey, TValue>		鍵值對存儲，查詢快
+排序字典				SortedDictionary<TKey, TValue>	自動依鍵排序
+雜湊表（維護插入順序）	OrderedDictionary				有順序、有鍵值，僅非泛型
+堆疊（Stack）			Stack<T>						LIFO（後進先出）結構
+佇列（Queue）			Queue<T>						FIFO（先進先出）結構
+雙向佇列				Queue<T> 						自訂邏輯 或使用 Deque<T>（第三方）	
+優先佇列				無內建							可用 SortedSet<T> 或實作 Heap
+
+✅ 一、依 功能性質 分類
+類別類型						說明							範例
+資料類別（Data Class）			僅存儲資料，無邏輯行為			Person, Product
+行為類別（Service / Helper）	提供某種邏輯功能或服務			Logger, EmailSender, MathHelper
+控制類別（Controller）			常見於 MVC 架構中，負責控制流程	HomeController, UserController
+實體類別（Entity）				通常對應資料庫資料表			UserEntity, OrderEntity
+工具類別（Utility / Static）	靜態方法集合，無需實例化		FileUtils, StringHelper
+
+✅ 二、依 類別屬性 分類
+類別類型					說明							特性
+一般類別（Class）			最基本的類別					public class MyClass
+靜態類別（Static Class）	無法被實例化，只能包含靜態成員	public static class MathHelper
+抽象類別（Abstract Class）	不可直接實例化，必須被繼承		public abstract class Animal
+密封類別（Sealed Class）	無法被繼承						public sealed class Logger
+泛型類別（Generic Class）	可以接收型別參數				public class Box<T>
+部分類別（Partial Class）	可分多個檔案定義同一個類別		partial class MyForm
+
+✅ 三、依 存取範圍 分類
+存取修飾詞				說明
+public					公開，任何地方都可以存取
+internal				僅限同一個專案可存取
+private					僅限同一類別內使用（巢狀類別時）
+protected				僅限繼承的類別存取
+protected internal		繼承類別或同一專案皆可存取
+private protected		僅限繼承類別且在同一專案內存取
+
+四、依 繼承與介面 使用方式分類
+類別類型					說明					範例
+基底類別（Base Class）		被其他類別繼承的類別	public class Animal
+衍生類別（Derived Class）	繼承自其他類別的類別	public class Dog : Animal
+介面實作類別				實作介面的類別			public class Car : IVehicle
+
+✅ 五、依 用途場景 分類（實務導向）
+類別用途類型	說明									範例
+Model 類別		表示資料結構，用於資料傳輸或 ORM 映射	User, Product, OrderModel
+ViewModel 類別	常見於 MVVM/MVC，用於綁定 UI			UserViewModel, LoginViewModel
+Controller 類別	處理 HTTP 請求/業務流程（MVC）			ProductController
+Service 類別	提供業務邏輯							OrderService, UserService
+Repository 類別	資料存取層封裝							UserRepository, OrderRepository
+
