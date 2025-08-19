@@ -1,0 +1,204 @@
+C# 物件導向設計與應用技術總覽
+
+	物件導向是種 程式設計思想，主要概念是：
+	把資料和操作資料的方法包裝在一起，形成一個「物件」。
+
+類別（Class）、物件、封裝、繼承、多型
+
+概念					說明										範例
+✅ 類別（Class）		定義物件的模版（像設計圖）					Car, Person, Animal
+✅ 物件（Object）		類別的實體（真實的東西）					myCar = new Car()
+✅ 封裝（Encapsulation）把資料與方法包在一起，保護資料不被亂改		使用 private 屬性，透過方法存取
+✅ 繼承（Inheritance）	子類別可重用父類別的屬性與方法				Dog 繼承 Animal
+✅ 多型（Polymorphism）	相同方法名稱，不同實作方式	animal.Speak() 	可以是狗叫或貓叫
+------------------------------------------------------------------------------------------------------
+
+✅ 類別與物件
+
+類別（Class）：定義資料與行為（屬性與方法）的模版。
+
+物件（Object）：類別的實例。
+
+class Person {
+    public string Name;
+    public void Greet() {
+        Console.WriteLine($"Hello, I’m {Name}!");
+    }
+}
+
+Person p = new Person();
+p.Name = "Alice";
+p.Greet();  // 輸出：Hello, I’m Alice!
+
+✅封裝（Encapsulation）
+
+使用 private 限制欄位存取，透過 public 屬性或方法控制存取。
+
+class BankAccount {
+    private double balance;
+
+    public void Deposit(double amount) {
+        if (amount > 0) balance += amount;
+    }
+
+    public double GetBalance() => balance;
+}
+
+✅繼承（Inheritance）
+
+使用 : 繼承其他類別的屬性與方法。
+
+class Animal {
+    public void Eat() => Console.WriteLine("Animal is eating");
+}
+
+class Dog : Animal {
+    public void Bark() => Console.WriteLine("Dog barks");
+}
+
+多型（Polymorphism）
+
+使用 virtual / override 來改寫方法。
+
+class Animal {
+    public virtual void Speak() => Console.WriteLine("Animal sound");
+}
+
+class Cat : Animal {
+    public override void Speak() => Console.WriteLine("Meow");
+}
+
+屬性（Property）與方法（Method）
+
+✅ 屬性
+
+用來包裝欄位，常用於資料封裝。
+class Product {
+    public string Name { get; set; }
+    public double Price { get; set; }
+}
+
+方法
+
+定義類別的功能。
+class Calculator {
+    public int Add(int a, int b) => a + b;
+}
+
+靜態成員與建構子
+
+✅ 靜態成員（static）
+
+屬於類別，不需實例化即可使用。
+class MathHelper {
+    public static double Pi = 3.14159;
+    public static double Square(double x) => x * x;
+}
+
+建構子（Constructor）
+
+建立物件時自動呼叫。
+class Student {
+    public string Name;
+    public Student(string name) {
+        Name = name;
+    }
+}
+
+介面與抽象類別
+
+✅ 介面（interface）
+
+定義行為標準，不實作內容。
+interface IFlyable {
+    void Fly();
+}
+
+class Bird : IFlyable {
+    public void Fly() => Console.WriteLine("Bird flies");
+}
+
+✅抽象類別（abstract class）
+
+可包含抽象方法與已實作的方法。
+abstract class Animal {
+    public abstract void Speak();
+    public void Eat() => Console.WriteLine("Eating...");
+}
+
+class Dog : Animal {
+    public override void Speak() => Console.WriteLine("Bark");
+}
+
+命名空間與組件
+
+✅ 命名空間（namespace）
+
+管理類別與避免命名衝突。
+namespace MyApp.Models {
+    class User { }
+}
+
+組件（Assembly）
+
+編譯後的 .exe 或 .dll，可在專案間重用。
+
+✅檔案存取（File I/O）
+// 寫入檔案
+File.WriteAllText("log.txt", "Log started...");
+
+// 讀取檔案
+string content = File.ReadAllText("log.txt");
+Console.WriteLine(content);
+
+✅LINQ（語法查詢）
+
+LINQ 是什麼？
+
+LINQ（語言整合查詢）是一種 查詢語法，整合在 C# 語言中。
+它讓你可以像寫 SQL 一樣，用一套統一語法操作各種資料來源。
+
+支援資料來源：
+陣列、List、Dictionary（LINQ to Objects）
+資料庫（LINQ to SQL, Entity Framework）
+XML（LINQ to XML）
+
+int[] numbers = { 1, 2, 3, 4, 5 };
+var evenNumbers = from n in numbers where n % 2 == 0 select n;
+
+foreach (var n in evenNumbers) Console.WriteLine(n);
+
+基礎 WinForms / WPF（桌面 GUI）
+
+✅ WinForms 範例
+public partial class MainForm : Form {
+    public MainForm() {
+        InitializeComponent();
+        Button btn = new Button { Text = "Click Me" };
+        btn.Click += (s, e) => MessageBox.Show("Hello!");
+        this.Controls.Add(btn);
+    }
+}
+
+WPF 基本範例
+
+WPF = Windows Presentation Foundation
+是 .NET 平台的一部分
+使用 XAML（Extensible Application Markup Language） 定義 UI
+支援資料繫結、動畫、樣式、模板、自訂控制項等功能
+
+MainWindow.xaml
+<Window x:Class="WpfApp.MainWindow"
+        ... >
+    <Grid>
+        <Button Content="Click Me" Click="Button_Click"/>
+    </Grid>
+</Window>
+
+MainWindow.xaml.cs
+private void Button_Click(object sender, RoutedEventArgs e) {
+    MessageBox.Show("Hello from WPF!");
+}
+
+
+
