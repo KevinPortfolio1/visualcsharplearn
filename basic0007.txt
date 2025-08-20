@@ -1,0 +1,112 @@
+資料庫（SQL Server）連接與操作（ADO.NET / Entity Framework）
+✅ ADO.NET
+
+用 SqlConnection、SqlCommand、SqlDataReader 進行手動資料操作。
+
+優點：效能佳、控制細緻。
+
+缺點：開發繁瑣、容易出錯。
+
+	using (SqlConnection conn = new SqlConnection(connStr))
+	{
+		conn.Open();
+		SqlCommand cmd = new SqlCommand("SELECT * FROM Users", conn);
+		SqlDataReader reader = cmd.ExecuteReader();
+		while (reader.Read())
+		{
+			Console.WriteLine(reader["Name"]);
+		}
+	}
+
+
+✅ Entity Framework Core (EF Core)
+
+	使用 ORM 模型操作資料庫，更貼近物件導向設計。
+
+	常用功能：Code First / DB First、LINQ 查詢、遷移（Migration）
+	public class AppDbContext : DbContext
+	{
+		public DbSet<User> Users { get; set; }
+	}
+
+var users = await _context.Users.ToListAsync();
+
+🏗️ 三層式架構（UI / BLL / DAL）
+
+	目標：將程式碼分層，提升可維護性與測試性
+
+	UI Layer：使用者介面（如 Web API、MVC、Blazor）
+
+	BLL (Business Logic Layer)：商業邏輯，負責處理流程邏輯與規則
+
+	DAL (Data Access Layer)：資料庫存取層，與 EF 或 ADO.NET 互動
+	// BLL
+	public class UserService
+	{
+		private readonly IUserRepository _repo;
+		public UserService(IUserRepository repo) => _repo = repo;
+
+		public Task<List<User>> GetAllUsers() => _repo.GetAllUsers();
+	}
+
+🌐 Web API 開發（ASP.NET Core）
+
+	建立 RESTful API
+
+	使用 [HttpGet], [HttpPost] 等控制器屬性
+
+	支援 Swagger、自訂中介軟體（Middleware）
+	[ApiController]
+	[Route("api/[controller]")]
+	public class UsersController : ControllerBase
+	{
+		private readonly UserService _service;
+
+		public UsersController(UserService service) => _service = service;
+
+		[HttpGet]
+		public async Task<IActionResult> Get() => Ok(await _service.GetAllUsers());
+	}
+
+🌀 非同步程式設計（async / await）
+
+	提升應用程式效能與回應能力
+
+	典型用法：非同步資料庫呼叫、I/O 操作
+	public async Task<List<User>> GetAllUsersAsync()
+	{
+		return await _context.Users.ToListAsync();
+	}
+
+🧪 單元測試與除錯技巧
+
+	使用 xUnit / MSTest / NUnit
+
+	搭配 Moq 做依賴注入模擬（Mock）
+
+	使用 Visual Studio 除錯器、斷點、即時監看變數等工具
+	[Fact]
+	public async Task GetAllUsers_ReturnsCorrectCount()
+	{
+		var mockRepo = new Mock<IUserRepository>();
+		mockRepo.Setup(r => r.GetAllUsers()).ReturnsAsync(new List<User> { new User(), new User() });
+
+		var service = new UserService(mockRepo.Object);
+		var result = await service.GetAllUsers();
+
+		Assert.Equal(2, result.Count);
+	}
+
+🚀 應用部署與版本控制（Git）
+
+	使用 Git 管理版本（GitHub / GitLab / Azure DevOps）
+	基本操作：clone, commit, push, branch, merge
+	ASP.NET Core 應用部署：
+	本機 IIS / Windows Service
+	Docker
+
+	雲端平台（Azure / AWS / GCP）
+	git clone https://github.com/your-repo
+	git checkout -b feature/add-auth
+	git commit -m "Add login feature"
+	git push origin feature/add-auth

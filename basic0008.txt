@@ -1,0 +1,160 @@
+🎯 C# 設計模式（如：MVC、Repository）
+✅ MVC（Model-View-Controller）
+
+	常用於 ASP.NET Core MVC / Razor Pages / Web API 架構中。
+
+	優點：分離關注點，提高可讀性與維護性。
+
+	// Controller
+	public class ProductsController : Controller
+	{
+		public IActionResult Index()
+		{
+			var products = _service.GetAll();
+			return View(products); // View 與 Model 分離
+		}
+	}
+
+✅ Repository Pattern
+
+	封裝資料存取邏輯，降低對資料來源的耦合（EF, ADO.NET, MongoDB 等皆可替換）。
+	public interface IProductRepository
+	{
+		Task<List<Product>> GetAll();
+	}
+
+	public class ProductRepository : IProductRepository
+	{
+		private readonly AppDbContext _context;
+		public ProductRepository(AppDbContext context) => _context = context;
+
+		public async Task<List<Product>> GetAll() => await _context.Products.ToListAsync();
+	}
+
+
+🔁 軟體開發流程（Agile、Scrum）
+
+✅ Scrum 核心概念
+
+	Sprint：2–4 週一次開發週期
+
+	Daily Standup：每天 15 分鐘會議
+
+	Backlog / User Story：需求列表、功能切分
+
+	角色：
+
+	PO（產品負責人）
+
+	Scrum Master（流程管理）
+
+	Team（開發團隊）
+
+	🔧 工具建議：
+
+	Jira / Azure DevOps / Trello
+
+	GitHub Projects 也可作為簡易 Sprint 管理
+
+🧪 單元測試（xUnit / NUnit）
+
+✅ 測試重點：
+
+	功能正確性
+
+	邏輯分支覆蓋率（Coverage）
+
+	依賴隔離（Mocking）
+
+✅ xUnit 範例：
+	public class Calculator
+	{
+		public int Add(int a, int b) => a + b;
+	}
+
+	public class CalculatorTests
+	{
+		[Fact]
+		public void Add_ReturnsCorrectResult()
+		{
+			var calculator = new Calculator();
+			var result = calculator.Add(2, 3);
+			Assert.Equal(5, result);
+		}
+	}
+
+🌿 版本控制（GitHub / GitLab）
+	常見 Git 工作流程：
+
+	Feature Branch Flow
+
+	main 為穩定版
+
+	建立 feature/login, bugfix/issue-101 等分支
+
+	PR / MR 流程
+
+	Pull Request（GitHub）/ Merge Request（GitLab）
+
+	設定 Reviewer 與 CI 測試自動跑
+	git checkout -b feature/add-payment
+	git commit -m "Add payment gateway integration"
+	git push origin feature/add-payment
+	# 開 PR 合併回 main
+
+
+🚀 部署技能（CI/CD，Azure 或其他雲平台）
+
+✅ CI/CD 目標
+
+	每次 Push 或 PR，能自動建置 + 測試 + 部署
+
+🔧 工具：
+
+	GitHub Actions / GitLab CI
+
+	Azure DevOps Pipelines
+
+	Docker + Azure App Service / Azure Container Instances
+
+	GitHub Actions 範例 .github/workflows/build.yml：
+
+	name: Build and Test
+
+	on: [push]
+
+	jobs:
+	  build:
+		runs-on: ubuntu-latest
+		steps:
+		- uses: actions/checkout@v2
+		- name: Setup .NET
+		  uses: actions/setup-dotnet@v3
+		  with:
+			dotnet-version: '8.0.x'
+		- run: dotnet restore
+		- run: dotnet build --no-restore
+		- run: dotnet test
+
+	
+✅ 文件撰寫重點
+
+	README 說明專案架構、部署方式、API 說明
+
+	使用 Swagger 或 API Blueprint 製作 API 文件
+
+	使用 Markdown（.md）清楚表達
+
+✅ Code Review 技巧
+
+	檢查是否符合 SOLID 原則
+
+	評估效能與可維護性
+
+	避免過度工程 / 潛在 Bug
+
+	提出具建設性的建議，如：
+
+	✅：「可以將這段邏輯抽出為 Service，以方便測試」
+
+	❌：「這寫太爛了」← 這種沒幫助
