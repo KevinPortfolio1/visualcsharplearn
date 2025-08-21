@@ -1,0 +1,335 @@
+計算機程式（加減乘除）
+
+cmd
+
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("==== 簡易命令列計算機 ====");
+        Console.Write("請輸入第一個數字: ");
+        double num1 = Convert.ToDouble(Console.ReadLine());
+
+        Console.Write("請輸入運算符號 (+ - * /): ");
+        string op = Console.ReadLine();
+
+        Console.Write("請輸入第二個數字: ");
+        double num2 = Convert.ToDouble(Console.ReadLine());
+
+        double result = 0;
+        bool valid = true;
+
+        switch (op)
+        {
+            case "+":
+                result = num1 + num2; break;
+            case "-":
+                result = num1 - num2; break;
+            case "*":
+                result = num1 * num2; break;
+            case "/":
+                if (num2 == 0)
+                {
+                    Console.WriteLine("錯誤：除數不能為零！");
+                    valid = false;
+                }
+                else
+                {
+                    result = num1 / num2;
+                }
+                break;
+            default:
+                Console.WriteLine("錯誤：不支援的運算符號！");
+                valid = false;
+                break;
+        }
+
+        if (valid)
+        {
+            Console.WriteLine($"結果: {result}");
+        }
+
+        Console.WriteLine("按任意鍵結束...");
+        Console.ReadKey();
+    }
+}
+
+
+---------------------------------------------------------------------
+using System;
+using System.Data;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("==== 表達式計算機 ====");
+        Console.Write("請輸入數學表達式（例如：5 + 3 * 2 - 1）: ");
+
+        string input = Console.ReadLine();
+
+        try
+        {
+            var result = new DataTable().Compute(input, null);
+            Console.WriteLine($"結果: {result}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("錯誤：無效的數學表達式！");
+        }
+
+        Console.WriteLine("按任意鍵結束...");
+        Console.ReadKey();
+    }
+}
+
+DataTable
+
+這是來自 System.Data 命名空間 的類別，原本是用來處理資料表格（例如從資料庫讀出的資料）。
+但它有一個小功能：它能用 .Compute() 方法來計算類似 Excel 的表達式。
+
+.Compute(expression, filter)
+object result = new DataTable().Compute("5 + 3 * 2", null);
+
+expression（第一個參數）：
+要被計算的「字串格式的運算式」，如 "5 + 3 * 2" 或 "100 / (4 + 1)"
+filter（第二個參數）：
+通常用於 DataTable 的資料過濾（像 WHERE 條件），但這裡我們不需要，所以設為 null
+
+---------------------------------------------------------------------------------------
+資料結構比較說明
+資料結構							用途
+堆疊（Stack）						解析運算式時儲存操作數或運算子（後序計算）
+佇列（Queue）						暫存輸出（如 postfix 結果）
+運算樹（Binary Expression Tree）	可視覺化與遞迴求值
+堆積樹（Heap）						不適用於數學表達式解析；主要用於排序、優先佇列
+
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        Console.WriteLine("請輸入運算式（支援 + - * / 和括號）：");
+        string input = Console.ReadLine();
+
+        try
+        {
+            var postfix = InfixToPostfix(input);
+            double result = EvaluatePostfix(postfix);
+
+            Console.WriteLine($"結果：{result}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"錯誤：{ex.Message}");
+        }
+
+        Console.WriteLine("按任意鍵結束...");
+        Console.ReadKey();
+    }
+
+    // 優先順序定義
+    static int GetPrecedence(string op)
+    {
+        return op switch
+        {
+            "+" or "-" => 1,
+            "*" or "/" => 2,
+            _ => 0
+        };
+    }
+
+    // 判斷是否為運算子
+    static bool IsOperator(string token) => "+-*/".Contains(token);
+
+    // 中序轉後序
+    static List<string> InfixToPostfix(string expression)
+    {
+        Stack<string> operators = new();
+        List<string> output = new();
+
+        // 分割字串為 token（數字/運算子）
+        var tokens = Tokenize(expression);
+
+        foreach (var token in tokens)
+        {
+            if (double.TryParse(token, out _))
+            {
+                output.Add(token); // 數字直接加入
+            }
+            else if (IsOperator(token))
+            {
+                while (operators.Count > 0 && IsOperator(operators.Peek()) &&
+                       GetPrecedence(operators.Peek()) >= GetPrecedence(token))
+                {
+                    output.Add(operators.Pop());
+                }
+                operators.Push(token);
+            }
+            else if (token == "(")
+            {
+                operators.Push(token);
+            }
+            else if (token == ")")
+            {
+                while (operators.Count > 0 && operators.Peek() != "(")
+                    output.Add(operators.Pop());
+
+                if (operators.Count == 0 || operators.Pop() != "(")
+                    throw new Exception("括號不匹配");
+            }
+            else
+            {
+                throw new Exception($"無效符號：{token}");
+            }
+        }
+
+        while (operators.Count > 0)
+        {
+            string op = operators.Pop();
+            if (op == "(" || op == ")")
+                throw new Exception("括號不匹配");
+            output.Add(op);
+        }
+
+        return output;
+    }
+
+    // 計算後序表達式
+    static double EvaluatePostfix(List<string> postfix)
+    {
+        Stack<double> stack = new();
+
+        foreach (var token in postfix)
+        {
+            if (double.TryParse(token, out double num))
+            {
+                stack.Push(num);
+            }
+            else if (IsOperator(token))
+            {
+                double b = stack.Pop();
+                double a = stack.Pop();
+
+                stack.Push(token switch
+                {
+                    "+" => a + b,
+                    "-" => a - b,
+                    "*" => a * b,
+                    "/" => b == 0 ? throw new DivideByZeroException() : a / b,
+                    _ => throw new Exception($"未知運算子：{token}")
+                });
+            }
+        }
+
+        if (stack.Count != 1)
+            throw new Exception("無效表達式");
+
+        return stack.Pop();
+    }
+
+    // 將輸入字串切成 token
+    static List<string> Tokenize(string input)
+    {
+        var tokens = new List<string>();
+        string number = "";
+
+        foreach (char c in input.Replace(" ", ""))
+        {
+            if (char.IsDigit(c) || c == '.')
+            {
+                number += c;
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(number))
+                {
+                    tokens.Add(number);
+                    number = "";
+                }
+                tokens.Add(c.ToString());
+            }
+        }
+
+        if (!string.IsNullOrEmpty(number))
+            tokens.Add(number);
+
+        return tokens;
+    }
+}
+
+
+--------------------------------------------------------------------------------------------------------------------
+常見數學運算解析方法與技術對比
+方法 / 技術	原理 / 結構	優點	缺點	常見用途
+✅ 堆疊 (Stack)	
+使用 stack 儲存操作數 / 運算子	
+簡單、高效、適合 
+postfix 運算	
+不適合直接處理中序	
+Postfix 計算、RPN 計算器
+✅ 佇列 (Queue)	
+用來暫存 postfix token 順序	
+配合 stack 使用，清楚運算順序	
+單獨使用功能有限	
+Shunting Yard Algorithm 的輸出佇列
+✅ 運算樹（Expression Tree）	
+節點為運算子，左右子樹為操作數	
+可遞迴求值、可視覺化、支援簡化	
+結構較複雜、效率略低	
+編譯器、公式化簡、代數運算
+✅ DataTable.Compute()	
+使用內建解析器（動態編譯表達式）	
+快速、零成本	
+安全性低、不支援進階語法	
+快速運算需求，如小型工具、表單
+✅ Shunting Yard Algorithm	
+將中序轉 postfix 的演算法	
+處理優先順序與括號，適合電腦處理	
+較難理解初學者	postfix 計算前置步驟
+✅ 遞迴下降解析器（Recursive Descent Parser）	
+用遞迴函數解析數學語法樹（類似語法分析器）	
+可處理複雜文法、變數、函數	
+較複雜、需語法設計	
+編譯器、腳本引擎、符號計算
+✅ 正規表達式 + 評估器（Regex + Eval）	
+用正則表達式擷取數字與運算子後直接計算	
+簡單快速、可自定解析	
+無法處理複雜結構與括號	
+輕量級表達式處理
+✅ 外部解析套件（如 NCalc, ANTLR）	
+專門語法解析器或運算式引擎	
+支援變數、函數、巨集、多種語法	
+引入額外相依，需學習	
+高階計算器、腳本引擎、商業規則引擎
+✅ 逆波蘭表示法（RPN）直接計算	
+用 postfix 表示法計算	
+無括號與優先順序問題，計算最簡潔	
+人類難閱讀	
+工業控制器、HP 計算機、簡化虛擬機
+✅ 抽象語法樹（AST）	
+把運算式編譯成一棵語法分析樹	
+支援多種操作、最佳化、符號運算	
+設計複雜、開發成本高	
+編譯器、DSL 語言、數學軟體（如 Wolfram）
+
+選擇方法依需求而定
+你需要...	用這個方法
+快速算幾個表達式	DataTable.Compute()
+建 CLI 計算機練習堆疊邏輯	Shunting Yard + 堆疊
+實作編譯器或進階解析	運算樹 / AST / ANTLR
+可擴充的計算邏輯（如變數、函數）	Expression Tree / NCalc / Jace
+精確控制語法與優化	遞迴下降解析器 / 語法樹 / AST
+
+想成為老手要學什麼？
+
+資料結構：Stack、Queue、Tree、Graph
+語法與語意：如何定義語言規則與錯誤處理
+演算法：解析器（parsing）、優化
+抽象能力：將表達式轉成結構處理
+實作經驗：不只是理論，多寫程式碼
+
