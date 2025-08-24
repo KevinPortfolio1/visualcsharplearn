@@ -1,0 +1,146 @@
+✅ 單元測試（Unit Testing）
+📌 什麼是單元測試？
+單元測試是針對程式中的最小可測單元（通常是方法或類別）所撰寫的測試，目的是確保其行為符合預期。
+
+✅ 常用工具
+工具/框架	說明
+MSTest		微軟原生單元測試框架
+xUnit		社群常用，輕量且支援多樣測試功能
+NUnit		歷史悠久、功能齊全的單元測試框架
+Moq			模擬物件 (Mocking) 框架，用於模擬依賴項
+
+✨ 撰寫單元測試的技巧
+
+命名清楚的測試方法
+格式建議：MethodName_StateUnderTest_ExpectedBehavior
+例：CalculateTax_NegativeIncome_ThrowsException
+Arrange-Act-Assert（AAA）模式
+Arrange：設定初始條件
+Act：執行要測試的方法
+Assert：驗證結果是否符合預期
+保持測試的獨立性
+每個測試應該獨立運行，避免依賴外部狀態或順序。
+使用 Mock 物件
+用來模擬資料庫、API、服務等外部資源，讓測試更快速且可靠。
+搭配 Moq 使用效果佳。
+邊界條件與例外測試
+確保涵蓋正常、異常與邊界輸入（如 null、空字串、最大/最小值）。
+
+public class TaxService {
+    public decimal CalculateTax(decimal income) {
+        if (income < 0) throw new ArgumentException("Income must be non-negative");
+        return income * 0.2m;
+    }
+}
+
+public class TaxServiceTests {
+    [Fact]
+    public void CalculateTax_PositiveIncome_ReturnsCorrectTax() {
+        var service = new TaxService();
+
+        var result = service.CalculateTax(1000);
+
+        Assert.Equal(200, result);
+    }
+
+    [Fact]
+    public void CalculateTax_NegativeIncome_ThrowsException() {
+        var service = new TaxService();
+
+        Assert.Throws<ArgumentException>(() => service.CalculateTax(-100));
+    }
+}
+
+
+🛠️ 除錯技巧（Debugging Tips）
+📌 常用工具
+Visual Studio 的「中斷點（Breakpoint）」
+即時監看（Watch） 和 自動視窗（Autos）
+即時編輯（Edit and Continue）
+偵錯輸出（Debug.WriteLine）
+條件中斷點（Conditional Breakpoint）
+
+✨ 除錯實用技巧
+
+設定條件中斷點
+只在特定條件滿足時中斷，例如：x == 5
+使用即時監看（Watch）變數值
+可以即時查看或修改變數值。
+逐步執行（Step Over / Step Into / Step Out）
+Step Into（F11）：進入方法內部
+Step Over（F10）：執行整行，不進入方法
+Step Out（Shift+F11）：跳出目前方法
+使用 Debug.WriteLine() 追蹤程式流程
+替代加入中斷點，簡易除錯用。
+Debug.WriteLine("Current value of x: " + x);
+啟用例外中斷（Break on All Exceptions）
+可在「例外設定」中勾選，讓程式在任何例外發生時中斷。
+
+🧠 小技巧補充
+
+對於多執行緒或非同步方法，善用「Parallel Stack」視窗。
+熟悉 Visual Studio 的「診斷工具」可以幫助記憶體與效能分析。
+使用 nameof() 函數可減少硬編碼錯誤：
+throw new ArgumentNullException(nameof(myParam));
+
+🎯 單元測試的原則
+單元測試的目標是測試邏輯，而不是輸入/輸出設備本身。
+
+✅ 可測方式：抽象輸入來源
+你可以用「依賴注入」或「介面抽象」來包裝輸入，然後在測試時用假資料取代它。
+public interface IInputProvider {
+    string ReadInput();
+}
+
+public class ConsoleInputProvider : IInputProvider {
+    public string ReadInput() {
+        return Console.ReadLine();
+    }
+}
+
+public class NameService {
+    private readonly IInputProvider _inputProvider;
+
+    public NameService(IInputProvider inputProvider) {
+        _inputProvider = inputProvider;
+    }
+
+    public string GetUpperCaseName() {
+        var name = _inputProvider.ReadInput();
+        return name?.ToUpperInvariant();
+    }
+}
+
+public class NameServiceTests {
+    [Fact]
+    public void GetUpperCaseName_ReturnsUpperCase() {
+        // Arrange
+        var mockInput = new Mock<IInputProvider>();
+        mockInput.Setup(x => x.ReadInput()).Returns("john");
+
+        var service = new NameService(mockInput.Object);
+
+        // Act
+        var result = service.GetUpperCaseName();
+
+        // Assert
+        Assert.Equal("JOHN", result);
+    }
+}
+
+
+整體流程圖（簡略）
+[Console.ReadLine()]
+      ↓（抽象）
+[IInputProvider介面]
+      ↓（注入）
+[業務邏輯類別，例如 NameService]
+      ↓（可測）
+[單元測試透過 Mock 模擬輸入]
+
+📌 結論
+階段			工具/技術				目的
+輸入抽象化		介面 (IInputProvider)	隔離與 Console 的依賴
+真實輸入		ConsoleInputProvider	真正從鍵盤讀取輸入
+可測邏輯封裝	NameService 等類別		將邏輯封裝進行單元測試
+測試實作		xUnit + Moq				模擬輸入資料，驗證邏輯正確性
