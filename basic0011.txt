@@ -1,0 +1,90 @@
+✅ C# 核心技能總結與說明
+
+📐 設計模式（Design Patterns）
+
+
+	熟悉常見設計模式，如：
+
+	MVC（Model-View-Controller）：用於 ASP.NET Web 應用，分離關注點、提升維護性。
+
+	Repository Pattern：抽象資料存取邏輯，讓資料層更容易測試與維護。
+
+	Unit of Work、Dependency Injection、Factory 等進階模式。
+
+	應用經驗：
+
+	在 ASP.NET Core 專案中實作 MVC 與 Repository + Unit of Work 結構，確保邏輯清晰、可擴充。
+
+🔁 軟體開發流程
+
+	熟悉 Agile 敏捷開發流程，包括：
+
+	每週/雙週 Sprint、Daily Standup、Sprint Review / Retrospective。
+
+	擔任角色：Scrum Team 成員、或擔任開發負責人。
+
+	使用工具：Jira、Azure DevOps、Trello 等管理工作項目。
+
+✅ 單元測試（Unit Testing）
+
+	使用 xUnit 或 NUnit 撰寫單元測試與整合測試。
+
+	熟悉 Mock 技術：
+
+	使用 Moq / FakeItEasy 等框架模擬依賴。
+
+	覆蓋重點：
+
+	Service Layer / Repository Layer / Controller 測試。
+
+	目標覆蓋率：常見目標為 80% 以上。
+
+🔧 版本控制
+
+	熟悉使用 Git 進行版本管理：
+
+	分支策略：Git Flow、Feature Branch、Pull Request。
+
+	熟悉平台：
+
+	GitHub
+
+	GitLab
+
+	Azure DevOps Repo
+
+	熟悉 Code Review 流程與標準，能協助團隊維持高品質程式碼。
+
+🚀 部署技能
+
+	熟悉 CI/CD 自動化流程：
+
+	使用 GitHub Actions、GitLab CI、或 Azure DevOps Pipelines。
+
+	雲端平台經驗：
+
+	Microsoft Azure：
+
+	App Service、Azure SQL、Azure Storage、Key Vault。
+
+	其他平台如 AWS / GCP 也可列出（若有）。
+
+	能配置：
+
+	Build、Test、Deploy 流程。
+
+	Deployment Slot、Rollback、Environment Variable 管理。
+
+📝 技術文件與 Code Review
+
+	技術文件撰寫能力：
+
+	撰寫 API 文件（如 Swagger/OpenAPI）、架構設計文件、使用手冊。
+
+	使用 Markdown、Confluence 等工具。
+
+	Code Review 經驗：
+
+	定期參與 Review，提供具體建議（可讀性、效能、可測試性等）。
+
+	了解團隊程式碼規範，推動 Best Practices。
