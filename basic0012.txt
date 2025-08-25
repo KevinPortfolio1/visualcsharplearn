@@ -1,0 +1,104 @@
+C# + AI 學習路線圖（新手 → 老手）
+
+第一階段：打好 C# 程式基礎
+
+	🎯 目標：寫得出清晰、結構良好的 C# 程式，打下 AI 開發的地基。
+
+	🔍 建議學習內容：
+
+	C# 語法基礎：變數、資料型別、if/for/while、方法（function）
+
+	面向物件編程：類別（class）、繼承、多型、介面（interface）
+
+	LINQ 和 Lambda 表達式
+
+	例外處理（try-catch）
+
+	檔案操作、基本資料庫連接
+
+	非同步程式（async/await）
+
+------------------------------------------------------------------
+🤖 第二階段：人工智慧與機器學習概念入門
+
+	🎯 目標：建立 AI 的基本觀念，了解模型訓練與評估的核心流程。
+
+	🔍 建議學習內容：
+
+	人工智慧 vs 機器學習 vs 深度學習（了解各自用途）
+
+	基本模型：
+
+	監督式學習：分類（classification）、回歸（regression）
+
+	非監督式學習：群集（clustering）
+
+	模型訓練、測試資料分割、過擬合與準確率
+
+	評估指標：Accuracy、Precision、Recall、F1 Score
+-------------------------------------------------------------------
+第三階段：用 C# 實作 AI 專案
+
+	這部分分為兩條主要路線：
+
+	🚀 路線 A：使用 ML.NET 在本地訓練模型
+
+	💡 ML.NET 是微軟推出的機器學習框架，支援在 C# 中建立和訓練 AI 模型。
+
+	🔧 支援的 AI 任務：
+
+	文字分類（垃圾郵件篩選）
+
+	數值預測（房價預測）
+
+	群集分析
+
+	推薦系統
+
+	圖像分類（轉為 ONNX 格式支援）
+
+	var context = new MLContext();
+	var data = context.Data.LoadFromTextFile<ModelInput>("data.csv", hasHeader: true);
+	var pipeline = context.Transforms.Text.FeaturizeText("Features", nameof(ModelInput.Text))
+		.Append(context.BinaryClassification.Trainers.SdcaLogisticRegression(labelColumnName: "Label", featureColumnName: "Features"));
+
+	路線 B：整合 AI 模型 API（如 ChatGPT、Azure AI）
+
+	💡 若不想自己訓練模型，也可直接使用強大的 AI API，如 OpenAI GPT、Azure OpenAI、Google Cloud AI。
+	var httpClient = new HttpClient();
+	httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "你的 API 金鑰");
+
+	var json = JsonSerializer.Serialize(new {
+		model = "gpt-4",
+		messages = new[] {
+			new { role = "user", content = "幫我寫一段介紹台北的文章" }
+		}
+	});
+
+	var content = new StringContent(json, Encoding.UTF8, "application/json");
+	var response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
+--------------------------------------------------------------------------------------------------
+
+第四階段：AI 專案工程化與整合能力
+
+	🎯 目標：學會如何把模型變成可使用的「產品」，包含 UI、測試與部署。
+
+	🔍 需要學會的技術：
+
+	模型儲存與載入（ML.NET 模型儲存、ONNX 模型匯入）
+
+	建立 RESTful API（使用 ASP.NET Core）
+
+	部署到雲端（Azure、AWS、Docker）
+
+	系統整合：與前端、資料庫、排程等結合
+
+	多執行緒與非同步設計
+
+	🛠️ 整合專案實例：
+
+	AI 圖像辨識桌面應用（Windows App + ONNX 模型）
+
+	銷售數據分析 + AI 預測 + 自動報表（搭配 Excel）
+
+	公司內部文件搜尋 + ChatGPT 解析（企業 AI 助理）
