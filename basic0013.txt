@@ -1,0 +1,56 @@
+✅ 一、C# 應用於雲端開發
+
+C# 是微軟主導開發的語言，與 Azure 雲端平台整合非常好。
+
+常見應用：
+
+使用 ASP.NET Core 開發 Web API，部署到 Azure App Services
+
+建立 Serverless Functions（Azure Functions）
+
+使用 Azure SDK for .NET 操作各種雲端資源（儲存體、訊息佇列等）
+
+✅ 二、C# 與資料庫
+
+C# 可透過多種方式連接與操作資料庫。
+
+常見技術：
+
+ADO.NET：原始的資料存取技術
+
+Entity Framework Core（EF Core）：ORM，可用 LINQ 查詢資料庫
+
+Dapper：輕量級 ORM，效能好
+
+常見資料庫：
+
+SQL Server：微軟自家的關聯式資料庫
+
+MySQL / PostgreSQL：也支援透過驅動程式使用 C# 存取
+
+Cosmos DB / Azure SQL：雲端資料庫，與 C# 無縫整合
+
+✅ 三、C# 與網路通訊
+
+C# 提供豐富的網路程式設計支援，可開發各種網路應用。
+
+常見應用：
+
+使用 HttpClient 呼叫 API（RESTful 服務）
+
+建立 Web API（使用 ASP.NET Core）
+
+使用 SignalR 實現即時通訊（WebSocket）
+
+TCP / UDP 通訊（使用 System.Net.Sockets）
+
+✅ 綜合案例（完整架構）
+
+例如一個用 C# 開發的雲端應用可能會包含：
+
+元件		技術					描述
+前端		React / Blazor			顯示資料給使用者
+後端 API	ASP.NET Core			C# 撰寫 API 服務
+資料庫		Azure SQL / EF Core		儲存用戶資料、交易紀錄
+雲端平台	Azure / AWS				雲端部署、自動擴充、監控
+通訊		HttpClient / SignalR	API 呼叫、即時更新
