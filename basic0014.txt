@@ -1,0 +1,71 @@
+C# 在大數據方面的應用
+
+🧩 第 1 階段：C# 基礎（初學者）
+
+	目標：熟練 C# 語言基本語法與資料處理能力。
+
+	✅ 學習主題：
+
+	資料型別、流程控制、迴圈、條件式
+
+	類別、結構、介面、繼承、封裝
+
+	LINQ（查詢資料的強大工具）
+
+	例外處理與非同步程式設計（async/await）
+
+	檔案與資料流處理（File IO, Stream）
+
+🧩 第 2 階段：資料處理與 ETL
+
+	目標：理解如何用 C# 擷取、清理與轉換大量資料。
+
+	✅ 學習主題：
+
+	使用 System.Data、SqlClient 操作 SQL Server、MySQL
+
+	使用 CsvHelper, ExcelDataReader 處理大量 CSV/Excel 資料
+
+	使用 LINQ、Parallel LINQ (PLINQ) 做資料轉換
+
+	JSON/XML 資料處理（使用 Newtonsoft.Json 或 System.Text.Json）
+
+🧩 第 3 階段：與大數據平台整合（中階）
+
+	目標：與常見大數據工具或平台整合，進行資料運算與分散式處理。
+
+	✅ 學習主題：
+
+	使用 C# 呼叫 Hadoop REST API
+
+	使用 Spark .NET（Mobius
+
+🧩 第 4 階段：與資料倉儲/雲端整合（中高階）
+
+	目標：與雲端平台（Azure、AWS）整合，處理企業級大數據應用。
+
+	✅ 學習主題：
+
+	使用 Azure Data Lake + .NET SDK
+
+	使用 Azure Synapse + SQL + C# 整合查詢
+
+	操作 AWS Athena / S3 / Redshift with .NET
+
+	C# + Power BI 整合數據視覺化
+
+🧩 第 5 階段：效能最佳化 + 實戰專案（老手）
+
+	目標：撰寫可處理數千萬筆資料的應用，具備實戰經驗與優化技巧。
+
+	✅ 技術議題：
+
+	記憶體最佳化：使用 Span<T>、Memory<T>
+
+	非同步批次處理、大量檔案併發處理
+
+	設計分散式資料處理架構
+
+	Logging（Serilog、Seq）、監控與故障容錯
+
+	使用 Docker + Kubernetes 部署大數據服務
