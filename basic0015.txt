@@ -1,0 +1,221 @@
+c#  不重複亂數
+
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        int min = 1;
+        int max = 100;
+        int count = 10;
+
+        List<int> numbers = new List<int>();
+        for (int i = min; i <= max; i++)
+        {
+            numbers.Add(i);
+        }
+
+        // 使用洗牌法打亂順序
+        Random rnd = new Random();
+        for (int i = numbers.Count - 1; i > 0; i--)
+        {
+            int j = rnd.Next(i + 1);
+            int temp = numbers[i];
+            numbers[i] = numbers[j];
+            numbers[j] = temp;
+        }
+
+        // 取前 count 個數
+        List<int> result = numbers.GetRange(0, count);
+
+        Console.WriteLine("不重複的整數：");
+        foreach (int n in result)
+        {
+            Console.WriteLine(n);
+        }
+    }
+}
+
+
+選擇適合的演算法
+輸入數量		建議選擇演算法複雜度
+小於 1000		幾乎任何演算法都可接受
+1,000~10,000	避免 O(n²) 以上
+大於 100,000	建議 O(n log n) 或更佳
+百萬筆以上		優先考慮 O(n)、O(log n)
+
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
+
+class Program
+{
+    static void Main()
+    {
+        GC.Collect(); // 先強制垃圾回收，取得更準確的記憶體量
+        long before = GC.GetTotalMemory(true);
+
+
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+
+        int min = 1;
+        int max = 1001;
+        int count = 1000;
+
+        List<int> numbers = new List<int>();
+        for (int i = min; i <= max; i++)
+        {
+            numbers.Add(i);
+        }
+
+        // 使用洗牌法打亂順序
+        Random rnd = new Random();
+        for (int i = numbers.Count - 1; i > 0; i--)
+        {
+            int j = rnd.Next(i + 1);
+            int temp = numbers[i];
+            numbers[i] = numbers[j];
+            numbers[j] = temp;
+        }
+
+        // 取前 count 個數
+        List<int> result = numbers.GetRange(0, count);
+
+        Console.WriteLine("不重複的整數：");
+        foreach (int n in result)
+        {
+            Console.WriteLine(n);
+        }
+
+        sw.Stop();
+        Console.WriteLine($"執行時間: {sw.ElapsedMilliseconds} ms");
+
+
+        long after = GC.GetTotalMemory(true);
+        long usedBytes = after - before;
+
+        Console.WriteLine($"使用記憶體: {usedBytes / 1024.0:F2} KB");
+    }
+}
+
+輸入1000個數值
+執行時間: 1160 ms
+使用記憶體: 50.09 KB
+
+輸入10000個數值
+執行時間: 7171 ms
+使用記憶體: 145.25 KB
+
+輸入100000個數值
+執行時間: 15127 ms
+使用記憶體: 944.93 KB
+
+輸入100000個數值
+執行時間: 100164 ms
+使用記憶體: 8039.72 KB
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+
+
+class Program
+{
+    static void Main()
+    {
+        GC.Collect(); // 先強制垃圾回收，取得更準確的記憶體量
+        long before = GC.GetTotalMemory(true);
+
+
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+
+        int min = 1;
+        int max = 1001;
+        int count = 1000;
+
+        List<int> numbers = new List<int>();
+        for (int i = min; i <= max; i++)
+        {
+            numbers.Add(i);
+        }
+
+        // 使用洗牌法打亂順序
+        Random rnd = new Random();
+        for (int i = numbers.Count - 1; i > 0; i--)
+        {
+            int j = rnd.Next(i + 1);
+            int temp = numbers[i];
+            numbers[i] = numbers[j];
+            numbers[j] = temp;
+        }
+
+        // 取前 count 個數
+        List<int> result = numbers.GetRange(0, count);
+
+        Console.WriteLine("不重複的整數：");
+        foreach (int n in result)
+        {
+            Console.WriteLine(n);
+        }
+
+        sw.Stop();
+        Console.WriteLine($"執行時間(產生): {sw.ElapsedMilliseconds} ms");
+
+        Stopwatch sw2 = new Stopwatch();
+        sw2.Start();
+
+        BubbleSort(result);
+
+        sw2.Stop();
+        Console.WriteLine($"執行時間(排序): {sw2.ElapsedMilliseconds} ms");
+
+        Console.WriteLine("排序後前1000個：");
+        for (int i = 0; i < 1000; i++) Console.Write(result[i] + " ");
+
+
+        long after = GC.GetTotalMemory(true);
+        long usedBytes = after - before;
+
+        Console.WriteLine($"使用記憶體: {usedBytes / 1024.0:F2} KB");
+    }
+
+
+    // 泡沫排序演算法
+    static void BubbleSort(List<int> list)
+    {
+        int n = list.Count;
+        bool swapped;
+
+        for (int i = 0; i < n - 1; i++)
+        {
+            swapped = false;
+
+            for (int j = 0; j < n - 1 - i; j++)
+            {
+                if (list[j] > list[j + 1])
+                {
+                    int temp = list[j];
+                    list[j] = list[j + 1];
+                    list[j + 1] = temp;
+                    swapped = true;
+                }
+            }
+
+            if (!swapped) break; // 如果沒發生交換，提早結束
+        }
+    }
+}
+
+執行時間(產生): 1026 ms
+執行時間(排序): 8 ms
+使用記憶體: 46.39 KB
+
+如果只是要排序，請使用內建的 List.Sort() 或 Array.Sort()，效率是 O(n log n)，非常快。
+
+
