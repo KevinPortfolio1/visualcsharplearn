@@ -1,0 +1,138 @@
+using System;
+using System.Diagnostics;
+
+class Program
+{
+    static void Main()
+    {
+        // 記錄產生時間和排序時間
+        Stopwatch stopwatch = new Stopwatch();
+
+        // 1. 產生不重複的 1000 個整數
+        int n = 1000;
+        Random rand = new Random();
+        HashSet<int> uniqueNumbers = new HashSet<int>();
+
+        // 生成 1000 個不重複的整數
+        stopwatch.Start(); // 開始計時
+        while (uniqueNumbers.Count < n)
+        {
+            uniqueNumbers.Add(rand.Next(1, 10001)); // 範圍 1 到 10000 的隨機數
+        }
+        stopwatch.Stop(); // 停止計時
+        Console.WriteLine($"時間: 生成 {n} 個不重複的整數花了 {stopwatch.ElapsedMilliseconds} 毫秒");
+
+        // 將 HashSet 轉換為陣列，以便排序
+        int[] numbers = new int[n];
+        uniqueNumbers.CopyTo(numbers);
+
+        // 2. 使用快速排序對數列進行排序
+        stopwatch.Restart(); // 重啟計時器
+        QuickSort(numbers, 0, numbers.Length - 1);
+        stopwatch.Stop(); // 停止計時
+        Console.WriteLine($"時間: 快速排序花了 {stopwatch.ElapsedMilliseconds} 毫秒");
+
+        // 3. 計算排序後資料的記憶體空間
+        long memorySize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(int)) * numbers.Length;
+        Console.WriteLine($"記憶體空間: 排序後資料的記憶體空間為 {memorySize} 位元組 ({memorySize / 1024.0} KB)");
+    }
+
+    // 快速排序的實現
+    static void QuickSort(int[] arr, int low, int high)
+    {
+        if (low < high)
+        {
+            int pivot = Partition(arr, low, high);
+            QuickSort(arr, low, pivot - 1);  // 排序左半邊
+            QuickSort(arr, pivot + 1, high); // 排序右半邊
+        }
+    }
+
+    static int Partition(int[] arr, int low, int high)
+    {
+        int pivot = arr[high]; // 取最後一個元素作為 pivot
+        int i = low - 1;
+
+        for (int j = low; j < high; j++)
+        {
+            if (arr[j] < pivot)
+            {
+                i++;
+                Swap(ref arr[i], ref arr[j]);
+            }
+        }
+
+        Swap(ref arr[i + 1], ref arr[high]);
+        return i + 1;
+    }
+
+    // 交換兩個元素的位置
+    static void Swap(ref int x, ref int y)
+    {
+        int temp = x;
+        x = y;
+        y = temp;
+    }
+}
+
+
+時間: 生成 1000 個不重複的整數花了 13 毫秒
+時間: 快速排序花了 0 毫秒
+記憶體空間: 排序後資料的記憶體空間為 4000 位元組 (3.90625 KB)
+
+
+快速排序法說明
+--------------------------------------------------------------------------------
+	是一種基於分治法（Divide and Conquer）的排序算法。
+	它的基本思想是將一個大的問題拆分成若干個小的問題，並分別解決。
+	快速排序的核心思想是選擇一個“基準”（pivot）元素，將數列分成兩個子數列，
+	其中一個子數列的所有元素都比基準元素小，另一個子數列的所有元素都比基準元素大。
+	然後，對這兩個子數列分別進行快速排序，最後合併得到最終結果。
+
+快速排序的工作原理：
+
+	選擇基準元素： 選擇數列中的一個元素作為基準元素（pivot）。
+	基準元素的選擇方式有很多種：
+
+	首元素：將數列的第一個元素作為基準。
+	尾元素：將數列的最後一個元素作為基準。
+	隨機選擇：隨機選擇一個元素作為基準。
+	中位數：選擇數列中間的元素作為基準。
+	分割數列： 使用兩個指針，將數列分成兩部分。這兩個指針分別從數列的兩端開始，逐步向中間移動，直到找到一對需要交換的元素：
+
+	一個指針指向的元素大於或等於基準，另一個指針指向的元素小於基準。交換這兩個元素。
+	重複這個過程，直到指針相遇，這樣就把數列分割成了基準元素左邊是小於基準的數字，右邊是大於基準的數字。
+	遞歸排序： 然後，對基準元素左邊的子數列和右邊的子數列分別遞歸執行相同的過程。
+	停止條件： 當數列的大小為 1 或 0 時，停止排序，因為它們已經是有序的。
+
+快速排序的時間複雜度：
+
+	最佳情況 (Best Case)： 
+	O(n log n)，當每次劃分都能夠將數列均勻地分成兩個相等的部分時，快速排序的時間複雜度是 O(n log n)。
+
+	最壞情況 (Worst Case)：
+	O(n²)，當選擇的基準總是數列中的最大或最小元素時（例如，每次都選擇數列的最大或最小元素作為基準），導致每次劃分只縮小 1 個元素，最終的時間複雜度會變成 O(n²)。
+
+	平均情況 (Average Case)：
+	O(n log n)，這是最常見的情況，當基準選得較好時，通常能夠平均地將數列劃分成兩部分。
+
+空間複雜度：
+
+	O(log n)：
+	因為在快速排序過程中，每次遞歸呼叫都會使用一點額外的堆疊空間（通常是 O(log n)），這樣總的空間複雜度為 O(log n)。
+
+	在最壞情況下（例如基準選擇不當），堆疊深度可能會達到 O(n)，這樣的空間複雜度就會變成 O(n)。
+
+快速排序的優點：
+
+	高效：
+	快速排序的時間複雜度平均是 O(n log n)，這比許多其他簡單排序算法（如冒泡排序、插入排序等）的 O(n²) 速度要快得多。
+
+	內排序： 
+	快速排序是一個“內排序”算法，即它不需要額外的空間來存儲排序過程中的數據（不像合併排序那樣需要額外的數組）。
+
+快速排序的缺點：
+
+	最壞情況時間複雜度： 當基準元素選擇不當時，時間複雜度可能會退化為 O(n²)。
+
+	非穩定排序： 快速排序是一個非穩定的排序算法，意味著排序後，相等的元素在排序前的相對順序可能會改變。
