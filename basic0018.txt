@@ -1,0 +1,253 @@
+✅ 資料結構基礎
+
+這裡使用鄰接表（Adjacency List）來表示圖。
+
+class Edge
+{
+    public int To { get; set; }
+    public int Weight { get; set; }
+    public Edge(int to, int weight)
+    {
+        To = to;
+        Weight = weight;
+    }
+}
+
+class Graph
+{
+    public int Vertices;
+    public List<Edge>[] Adj;
+
+    public Graph(int vertices)
+    {
+        Vertices = vertices;
+        Adj = new List<Edge>[vertices];
+        for (int i = 0; i < vertices; i++)
+            Adj[i] = new List<Edge>();
+    }
+
+    public void AddEdge(int from, int to, int weight = 1, bool undirected = false)
+    {
+        Adj[from].Add(new Edge(to, weight));
+        if (undirected)
+            Adj[to].Add(new Edge(from, weight));
+    }
+}
+
+
+深度優先搜尋（DFS）
+// 使用遞迴或堆疊實現
+
+void DFS(Graph graph, int start, bool[] visited)
+{
+    visited[start] = true;
+    Console.WriteLine(start);
+
+    foreach (var edge in graph.Adj[start])
+    {
+        if (!visited[edge.To])
+            DFS(graph, edge.To, visited);
+    }
+}
+
+廣度優先搜尋（BFS）
+// 使用佇列（Queue）實現
+
+void BFS(Graph graph, int start)
+{
+    var visited = new bool[graph.Vertices];
+    var queue = new Queue<int>();
+    visited[start] = true;
+    queue.Enqueue(start);
+
+    while (queue.Count > 0)
+    {
+        int current = queue.Dequeue();
+        Console.WriteLine(current);
+
+        foreach (var edge in graph.Adj[current])
+        {
+            if (!visited[edge.To])
+            {
+                visited[edge.To] = true;
+                queue.Enqueue(edge.To);
+            }
+        }
+    }
+}
+
+Dijkstra 最短路徑算法
+ 流程：
+	初始化所有節點距離為無限大，起點距離為0。
+	每次選擇目前未訪問的距離最小節點，更新它的鄰居距離。
+	重複直到所有節點都處理過。
+
+
+void Dijkstra(Graph graph, int start)
+{
+    int[] dist = new int[graph.Vertices];
+    bool[] visited = new bool[graph.Vertices];
+    for (int i = 0; i < graph.Vertices; i++)
+        dist[i] = int.MaxValue;
+    dist[start] = 0;
+
+    var pq = new SortedSet<(int dist, int node)>();
+    pq.Add((0, start));
+
+    while (pq.Count > 0)
+    {
+        var (curDist, u) = pq.Min;
+        pq.Remove(pq.Min);
+
+        if (visited[u]) continue;
+        visited[u] = true;
+
+        foreach (var edge in graph.Adj[u])
+        {
+            int v = edge.To, weight = edge.Weight;
+            if (dist[u] + weight < dist[v])
+            {
+                dist[v] = dist[u] + weight;
+                pq.Add((dist[v], v));
+            }
+        }
+    }
+
+    for (int i = 0; i < graph.Vertices; i++)
+        Console.WriteLine($"From {start} to {i} = {dist[i]}");
+}
+
+Bellman-Ford 最短路徑算法（可處理負權重）
+
+ 流程：
+
+	重複「鬆弛邊」操作 V-1 次（V為節點數）。
+	鬆弛邊：更新起點到終點距離，若有更短距離則更新。
+	最後檢測是否存在負權重環（若能再鬆弛邊表示有負環）。
+
+void BellmanFord(Graph graph, int start)
+{
+    int[] dist = new int[graph.Vertices];
+    for (int i = 0; i < graph.Vertices; i++)
+        dist[i] = int.MaxValue;
+    dist[start] = 0;
+
+    for (int i = 0; i < graph.Vertices - 1; i++)
+    {
+        for (int u = 0; u < graph.Vertices; u++)
+        {
+            foreach (var edge in graph.Adj[u])
+            {
+                if (dist[u] != int.MaxValue && dist[u] + edge.Weight < dist[edge.To])
+                    dist[edge.To] = dist[u] + edge.Weight;
+            }
+        }
+    }
+
+    // 檢查負環
+    for (int u = 0; u < graph.Vertices; u++)
+    {
+        foreach (var edge in graph.Adj[u])
+        {
+            if (dist[u] != int.MaxValue && dist[u] + edge.Weight < dist[edge.To])
+                Console.WriteLine("圖中存在負權重循環！");
+        }
+    }
+
+    for (int i = 0; i < graph.Vertices; i++)
+        Console.WriteLine($"From {start} to {i} = {dist[i]}");
+}
+
+
+Kruskal 最小生成樹算法（使用並查集）
+
+	流程：
+
+	將所有邊依權重由小到大排序。
+	從最小的邊開始加入 MST，若加入會造成環路則跳過（使用並查集判斷）。
+	持續直到所有節點連通。
+
+class UnionFind
+{
+    int[] parent;
+    public UnionFind(int n)
+    {
+        parent = new int[n];
+        for (int i = 0; i < n; i++) parent[i] = i;
+    }
+
+    public int Find(int x)
+    {
+        if (parent[x] != x)
+            parent[x] = Find(parent[x]);
+        return parent[x];
+    }
+
+    public bool Union(int x, int y)
+    {
+        int rootX = Find(x);
+        int rootY = Find(y);
+        if (rootX == rootY) return false;
+        parent[rootX] = rootY;
+        return true;
+    }
+}
+
+void Kruskal(int vertices, List<(int from, int to, int weight)> edges)
+{
+    edges.Sort((a, b) => a.weight.CompareTo(b.weight));
+    var uf = new UnionFind(vertices);
+    int totalWeight = 0;
+
+    foreach (var (from, to, weight) in edges)
+    {
+        if (uf.Union(from, to))
+        {
+            Console.WriteLine($"{from} - {to} : {weight}");
+            totalWeight += weight;
+        }
+    }
+
+    Console.WriteLine("Total weight of MST: " + totalWeight);
+}
+
+
+Prim 最小生成樹算法
+
+	流程：
+
+	選擇起點，將鄰邊放入優先佇列。
+	每次選擇權重最小的邊加入 MST，並將新節點的鄰邊加入佇列。
+	持續直到所有節點被加入。
+
+void Prim(Graph graph)
+{
+    var visited = new bool[graph.Vertices];
+    var pq = new SortedSet<(int weight, int from, int to)>();
+    int totalWeight = 0;
+
+    visited[0] = true;
+    foreach (var edge in graph.Adj[0])
+        pq.Add((edge.Weight, 0, edge.To));
+
+    while (pq.Count > 0)
+    {
+        var (weight, from, to) = pq.Min;
+        pq.Remove(pq.Min);
+
+        if (visited[to]) continue;
+
+        visited[to] = true;
+        totalWeight += weight;
+        Console.WriteLine($"{from} - {to} : {weight}");
+
+        foreach (var edge in graph.Adj[to])
+        {
+            if (!visited[edge.To])
+                pq.Add((edge.Weight, to, edge.To));
+        }
+    }
+
+    Console.WriteLine("Total weight of MST: " + totalWeight);
+}
+

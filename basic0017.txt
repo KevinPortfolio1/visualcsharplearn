@@ -1,0 +1,107 @@
+using System;
+using System.Diagnostics;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        // 記錄產生時間和排序時間
+        Stopwatch stopwatch = new Stopwatch();
+
+        // 1. 產生不重複的 1000 個整數
+        int n = 1000;
+        Random rand = new Random();
+        HashSet<int> uniqueNumbers = new HashSet<int>();
+
+        stopwatch.Start(); // 開始計時
+        while (uniqueNumbers.Count < n)
+        {
+            uniqueNumbers.Add(rand.Next(1, 10001)); // 範圍 1 到 10000 的隨機數
+        }
+        stopwatch.Stop(); // 停止計時
+        Console.WriteLine($"時間: 生成 {n} 個不重複的整數花了 {stopwatch.ElapsedMilliseconds} 毫秒");
+
+        // 將 HashSet 轉換為陣列，以便排序
+        int[] numbers = new int[n];
+        uniqueNumbers.CopyTo(numbers);
+
+        // 2. 使用合併排序對數列進行排序
+        stopwatch.Restart(); // 重啟計時器
+        numbers = MergeSort(numbers);
+        stopwatch.Stop(); // 停止計時
+        Console.WriteLine($"時間: 合併排序花了 {stopwatch.ElapsedMilliseconds} 毫秒");
+
+        // 3. 計算排序後資料的記憶體空間
+        long memorySize = System.Runtime.InteropServices.Marshal.SizeOf(typeof(int)) * numbers.Length;
+        Console.WriteLine($"記憶體空間: 排序後資料的記憶體空間為 {memorySize} 位元組 ({memorySize / 1024.0} KB)");
+    }
+
+    // 合併排序的實現
+    static int[] MergeSort(int[] array)
+    {
+        if (array.Length <= 1)
+            return array;
+
+        int mid = array.Length / 2;
+        int[] left = new int[mid];
+        int[] right = new int[array.Length - mid];
+
+        Array.Copy(array, 0, left, 0, mid);
+        Array.Copy(array, mid, right, 0, array.Length - mid);
+
+        left = MergeSort(left);
+        right = MergeSort(right);
+
+        return Merge(left, right);
+    }
+
+    static int[] Merge(int[] left, int[] right)
+    {
+        int[] result = new int[left.Length + right.Length];
+        int i = 0, j = 0, k = 0;
+
+        while (i < left.Length && j < right.Length)
+        {
+            if (left[i] <= right[j])
+            {
+                result[k++] = left[i++];
+            }
+            else
+            {
+                result[k++] = right[j++];
+            }
+        }
+
+        // 將剩餘元素加入
+        while (i < left.Length)
+        {
+            result[k++] = left[i++];
+        }
+
+        while (j < right.Length)
+        {
+            result[k++] = right[j++];
+        }
+
+        return result;
+    }
+}
+
+分隔	MergeSort()	將陣列一分為二，直到每組只剩一個元素
+合併	Merge()	比較並合併兩個排序好的陣列
+
+Hash Table Search 功能
+
+在產生完不重複亂數後，將資料存入一個 HashSet<int>（其實你本來就已經用了 uniqueNumbers）。
+在排序後，讓使用者輸入要搜尋的數字。
+使用 HashSet.Contains() 檢查是否存在。
+顯示搜尋結果與花費時間。
+
+請輸入一個數字進行搜尋：46
+✅ 數字 46 存在於資料中！
+Hash Table 搜尋花了 166 Ticks（約 0.0166 毫秒）
+
+// 設定 Console 支援 UTF-8，避免顯示 ? 字符
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
