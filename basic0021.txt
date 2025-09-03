@@ -1,0 +1,1372 @@
+c#  forms 
+
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+public class MapForm : Form
+{
+    private int[,] map =
+    {
+        { 0, 1, 0, 0, 2 },
+        { 1, 1, 0, 2, 2 },
+        { 0, 0, 0, 2, 1 },
+        { 0, 2, 2, 1, 0 }
+    };
+
+    private int tileSize = 40;
+
+    public MapForm()
+    {
+        this.Text = "2D 地圖範例";
+        this.Size = new Size(300, 300);
+        this.DoubleBuffered = true; // 避免閃爍
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        Graphics g = e.Graphics;
+
+        for (int y = 0; y < map.GetLength(0); y++)
+        {
+            for (int x = 0; x < map.GetLength(1); x++)
+            {
+                Color color = GetTileColor(map[y, x]);
+                using (Brush brush = new SolidBrush(color))
+                {
+                    g.FillRectangle(brush, x * tileSize, y * tileSize, tileSize, tileSize);
+                    g.DrawRectangle(Pens.Black, x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+        }
+    }
+
+    private Color GetTileColor(int tileType)
+    {
+        return tileType switch
+        {
+            0 => Color.LightGreen, // 草地
+            1 => Color.Gray,       // 石頭
+            2 => Color.Blue,       // 水
+            _ => Color.White
+        };
+    }
+
+    [STAThread]
+    public static void Main()
+    {
+        Application.Run(new MapForm());
+    }
+}
+--------------------------------------------------------------------------------------------------
+c# console
+
+using System;
+using System.Collections.Generic;
+
+class MazeGenerator
+{
+    const int width = 21;  // 必須為奇數
+    const int height = 21; // 必須為奇數
+
+    static int[,] maze = new int[height, width];
+    static Random rand = new Random();
+
+    static void Main()
+    {
+        GenerateMaze(1, 1);
+        PrintMaze();
+        Console.WriteLine("\n迷宮生成完成！按任意鍵結束...");
+        Console.ReadKey();
+    }
+
+    static void GenerateMaze(int x, int y)
+    {
+        maze[y, x] = 1; // 標記為通道
+
+        int[] dirs = { 0, 1, 2, 3 };
+        Shuffle(dirs); // 隨機方向
+
+        foreach (int dir in dirs)
+        {
+            int dx = 0, dy = 0;
+            switch (dir)
+            {
+                case 0: dx = 0; dy = -1; break; // 上
+                case 1: dx = 1; dy = 0; break;  // 右
+                case 2: dx = 0; dy = 1; break;  // 下
+                case 3: dx = -1; dy = 0; break; // 左
+            }
+
+            int nx = x + dx * 2;
+            int ny = y + dy * 2;
+
+            if (InBounds(nx, ny) && maze[ny, nx] == 0)
+            {
+                maze[y + dy, x + dx] = 1; // 打通牆壁
+                GenerateMaze(nx, ny);     // 遞迴
+            }
+        }
+    }
+
+    static void Shuffle(int[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = rand.Next(i + 1);
+            (array[i], array[j]) = (array[j], array[i]);
+        }
+    }
+
+    static bool InBounds(int x, int y)
+    {
+        return x > 0 && x < width - 1 && y > 0 && y < height - 1;
+    }
+
+    static void PrintMaze()
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (maze[y, x] == 1)
+                {
+                    Console.Write("  "); // 通道 = 空白
+                }
+                else
+                {
+                    Console.Write("##"); // 牆壁
+                }
+            }
+            Console.WriteLine();
+        }
+    }
+}
+----------------------------------------------------------------------------
+c# start and end
+
+using System;
+using System.Collections.Generic;
+
+class MazeGenerator
+{
+    const int width = 21;  // 必須為奇數
+    const int height = 21; // 必須為奇數
+
+    static int[,] maze = new int[height, width];
+    static Random rand = new Random();
+
+    static void Main()
+    {
+        GenerateMaze(1, 1);
+
+        // ✅ 設定出入口
+        maze[1, 0] = 1;                    // 入口（左邊邊界開口）
+        maze[height - 2, width - 1] = 1;   // 出口（右邊邊界開口）
+
+        PrintMaze();
+
+        Console.WriteLine("\n入口: (1,0)   出口: ({0},{1})", height - 2, width - 1);
+        Console.WriteLine("迷宮生成完成！按任意鍵結束...");
+        Console.ReadKey();
+    }
+
+    static void GenerateMaze(int x, int y)
+    {
+        maze[y, x] = 1; // 標記為通道
+
+        int[] dirs = { 0, 1, 2, 3 };
+        Shuffle(dirs); // 隨機方向
+
+        foreach (int dir in dirs)
+        {
+            int dx = 0, dy = 0;
+            switch (dir)
+            {
+                case 0: dx = 0; dy = -1; break; // 上
+                case 1: dx = 1; dy = 0; break;  // 右
+                case 2: dx = 0; dy = 1; break;  // 下
+                case 3: dx = -1; dy = 0; break; // 左
+            }
+
+            int nx = x + dx * 2;
+            int ny = y + dy * 2;
+
+            if (InBounds(nx, ny) && maze[ny, nx] == 0)
+            {
+                maze[y + dy, x + dx] = 1; // 打通牆壁
+                GenerateMaze(nx, ny);     // 遞迴
+            }
+        }
+    }
+
+    static void Shuffle(int[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = rand.Next(i + 1);
+            (array[i], array[j]) = (array[j], array[i]);
+        }
+    }
+
+    static bool InBounds(int x, int y)
+    {
+        return x > 0 && x < width - 1 && y > 0 && y < height - 1;
+    }
+
+    static void PrintMaze()
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (maze[y, x] == 1)
+                {
+                    Console.Write("  "); // 通道 = 空白
+                }
+                else
+                {
+                    Console.Write("##"); // 牆壁
+                }
+            }
+            Console.WriteLine();
+        }
+    }
+}
+
+
+--------------------------------------------------------------------------------
+c# 地圖 尋找 方式
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+
+class AnimatedBFS
+{
+    const int width = 21;
+    const int height = 21;
+    static int[,] maze = new int[height, width];
+    static Random rand = new Random();
+
+    static (int y, int x) start = (1, 0);
+    static (int y, int x) goal = (height - 2, width - 1);
+
+    static void Main()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.CursorVisible = false;
+
+        GenerateMaze(1, 1);
+        maze[start.y, start.x] = 1;
+        maze[goal.y, goal.x] = 1;
+
+        PrintMaze();
+
+        Console.SetCursorPosition(0, height + 1);
+        Console.WriteLine("🔍 正在探索迷宮中...");
+        SolveMazeWithBFS_Animated(start, goal);
+
+        Console.SetCursorPosition(0, height + 3);
+        Console.WriteLine("✅ 解迷宮完成！按任意鍵結束...");
+        Console.ReadKey();
+    }
+
+    static void SolveMazeWithBFS_Animated((int y, int x) start, (int y, int x) goal)
+    {
+        var queue = new Queue<(int y, int x)>();
+        var visited = new bool[height, width];
+        var prev = new (int y, int x)?[height, width];
+
+        queue.Enqueue(start);
+        visited[start.y, start.x] = true;
+
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { -1, 0, 1, 0 };
+
+        while (queue.Count > 0)
+        {
+            var (cy, cx) = queue.Dequeue();
+
+            if ((cy, cx) != start && (cy, cx) != goal)
+                DrawAt(cx, cy, '▒', ConsoleColor.DarkCyan); // 探索節點動畫
+
+            Thread.Sleep(20); // 動畫延遲
+
+            if ((cy, cx) == goal)
+            {
+                // 回溯路徑
+                var current = goal;
+                while (current != start)
+                {
+                    var p = prev[current.y, current.x];
+                    if (p != null && p != start)
+                        DrawAt(p.Value.x, p.Value.y, '●', ConsoleColor.Yellow); // 標記路徑
+                    current = p.Value;
+                    Thread.Sleep(15);
+                }
+
+                DrawAt(start.x, start.y, 'S', ConsoleColor.Green);
+                DrawAt(goal.x, goal.y, 'G', ConsoleColor.Red);
+                return;
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = cx + dx[i];
+                int ny = cy + dy[i];
+
+                if (InBounds(nx, ny) && !visited[ny, nx] && maze[ny, nx] == 1)
+                {
+                    queue.Enqueue((ny, nx));
+                    visited[ny, nx] = true;
+                    prev[ny, nx] = (cy, cx);
+                }
+            }
+        }
+
+        Console.WriteLine("❌ 無法找到出口！");
+    }
+
+    static void DrawAt(int x, int y, char symbol, ConsoleColor color)
+    {
+        Console.SetCursorPosition(x * 2, y); // *2 讓格子寬一點
+        Console.ForegroundColor = color;
+        Console.Write(symbol + " ");
+        Console.ResetColor();
+    }
+
+    static void GenerateMaze(int x, int y)
+    {
+        maze[y, x] = 1;
+        int[] dirs = { 0, 1, 2, 3 };
+        Shuffle(dirs);
+
+        foreach (int dir in dirs)
+        {
+            int dx = 0, dy = 0;
+            switch (dir)
+            {
+                case 0: dx = 0; dy = -1; break;
+                case 1: dx = 1; dy = 0; break;
+                case 2: dx = 0; dy = 1; break;
+                case 3: dx = -1; dy = 0; break;
+            }
+
+            int nx = x + dx * 2;
+            int ny = y + dy * 2;
+
+            if (InBounds(nx, ny) && maze[ny, nx] == 0)
+            {
+                maze[y + dy, x + dx] = 1;
+                GenerateMaze(nx, ny);
+            }
+        }
+    }
+
+    static void Shuffle(int[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = rand.Next(i + 1);
+            (array[i], array[j]) = (array[j], array[i]);
+        }
+    }
+
+    static bool InBounds(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    static void PrintMaze()
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if ((y, x) == start)
+                    Console.Write("S ");
+                else if ((y, x) == goal)
+                    Console.Write("G ");
+                else if (maze[y, x] == 0)
+                    Console.Write("██");
+                else
+                    Console.Write("  ");
+            }
+            Console.WriteLine();
+        }
+    }
+}
+-------------------------------------------------------------------
+c# 地圖 優化
+
+█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
+S ●    ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ░ ●                  █
+█ █ █ ●  █ █ █ █ █ █ █ █ ░ █ █ █ ●  █ █ █ █ ●    █ █ █   █
+█ ░ █ ●          ░ █ ●    ░ █ ●●●        █   █
+█ ░ █ █ █ █ █ █ █ █ █ ●  █ █ ●  █ █ ░ █ ●  █ █ █ █   █   █
+█ ░ ░ ░ █ ░ ░ ░ █ ░ █ ●      ●●●●●            █   █
+█ ░ █ ░ █ ░ █ ░ █ ░ █ █ █ █ █ █ █ ●  █ █ █ █ █ █   █ █ █ █ █
+█ ░ █ ░ ░ ░ █ ░ ░ ░ ░ ░ ░ ░ █ ●●●  ●                █
+█ ░ █ █ █ █ █ ░ █ █ █ █ █ ░ █ ●  █ █ ●  █ █ ●    █ █ █   █
+█ ░ ░ ░ ░ ░ █ ░ █ ●●●  ░ █ ●      ●●●        █   █
+█ █ █ █ █ ░ █ ░ █ ●  ●  █ █ █ █ █ █ █ █ ●  █ █ █ █   █   █
+█ ░ ░ ░ ░ ░ █ ░ █ ●  ●●●●●  ░ ░ ░ █ ●            █   █
+█ ░ █ █ █ ░ █ █ █ ●  █ █ █ █ ●  █ █ █ █ ●  █ █ █ █ █ █   █
+█ ░ █ ░ █ ░ █ ●●●  ░ ░ ░ █ ●●●●●●●  ●        █
+█ ░ █ ░ █ ░ █ ●  █ █ █ █ ░ █ █ █ █ █ █ █ █ █ ●  █ █ ●  ░ █
+█ ░ █ ░ ░ ░ █ ●  ●        ░ ░ ●    ●●●  ●  ░ █
+█ ░ █ █ █ █ █ ●  ●  █ █ █ █ ●  ░ █ ●  ●  █ █ ●  ●  ░ █
+█ ●●●●●●●  ●  ░ ░ ░ █ ●  ░ █ ●  ●      ●
+█ ●  █ █ █ █ █ █ ●  ░ █ █ █ ●  █ █ ●  █ █ █ █ █ █ █ █ ●
+█ ●          ░ ░ ░ ░ ●                      ●G
+█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
+
+🔍 正在執行 BFS 探索迷宮...
+
+✅ 探索完成！總共探索格數：252
+⏱️ 耗時：6927 毫秒
+🔚 按任意鍵結束...
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
+
+class AnimatedBFSWithStats
+{
+    const int width = 31;
+    const int height = 21;
+    static int[,] maze = new int[height, width];
+    static Random rand = new Random();
+
+    static (int y, int x) start = (1, 0);
+    static (int y, int x) goal = (height - 2, width - 1);
+
+    static void Main()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.CursorVisible = false;
+
+        GenerateMaze(1, 1);
+        maze[start.y, start.x] = 1;
+        maze[goal.y, goal.x] = 1;
+
+        PrintMaze();
+
+        Console.SetCursorPosition(0, height + 1);
+        Console.WriteLine("🔍 正在執行 BFS 探索迷宮...");
+
+        var sw = Stopwatch.StartNew();
+        int steps = SolveMazeWithBFS_Animated(start, goal);
+        sw.Stop();
+
+        Console.SetCursorPosition(0, height + 3);
+        Console.WriteLine($"✅ 探索完成！總共探索格數：{steps}");
+        Console.WriteLine($"⏱️ 耗時：{sw.ElapsedMilliseconds} 毫秒");
+        Console.WriteLine("🔚 按任意鍵結束...");
+        Console.ReadKey();
+    }
+
+    static int SolveMazeWithBFS_Animated((int y, int x) start, (int y, int x) goal)
+    {
+        var queue = new Queue<(int y, int x)>();
+        var visited = new bool[height, width];
+        var prev = new (int y, int x)?[height, width];
+
+        queue.Enqueue(start);
+        visited[start.y, start.x] = true;
+
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { -1, 0, 1, 0 };
+
+        int stepCount = 0;
+
+        while (queue.Count > 0)
+        {
+            var (cy, cx) = queue.Dequeue();
+            stepCount++;
+
+            if ((cy, cx) != start && (cy, cx) != goal)
+                DrawAt(cx, cy, '░', ConsoleColor.Gray); // 探索節點動畫
+
+            Thread.Sleep(10); // 控制動畫速度
+
+            if ((cy, cx) == goal)
+            {
+                var current = goal;
+                while (current != start)
+                {
+                    var p = prev[current.y, current.x];
+                    if (p != null && p != start)
+                        DrawAt(p.Value.x, p.Value.y, '●', ConsoleColor.Yellow); // 標記最短路徑
+                    current = p.Value;
+                    Thread.Sleep(5); // 更快顯示最短路徑
+                }
+
+                DrawAt(start.x, start.y, 'S', ConsoleColor.Green);
+                DrawAt(goal.x, goal.y, 'G', ConsoleColor.Red);
+                return stepCount;
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = cx + dx[i];
+                int ny = cy + dy[i];
+
+                if (InBounds(nx, ny) && !visited[ny, nx] && maze[ny, nx] == 1)
+                {
+                    queue.Enqueue((ny, nx));
+                    visited[ny, nx] = true;
+                    prev[ny, nx] = (cy, cx);
+                }
+            }
+        }
+
+        Console.WriteLine("❌ 無法找到出口！");
+        return stepCount;
+    }
+
+    static void DrawAt(int x, int y, char symbol, ConsoleColor color)
+    {
+        Console.SetCursorPosition(x * 2, y);
+        Console.ForegroundColor = color;
+        Console.Write(symbol + " ");
+        Console.ResetColor();
+    }
+
+    static void GenerateMaze(int x, int y)
+    {
+        maze[y, x] = 1;
+        int[] dirs = { 0, 1, 2, 3 };
+        Shuffle(dirs);
+
+        foreach (int dir in dirs)
+        {
+            int dx = 0, dy = 0;
+            switch (dir)
+            {
+                case 0: dx = 0; dy = -1; break;
+                case 1: dx = 1; dy = 0; break;
+                case 2: dx = 0; dy = 1; break;
+                case 3: dx = -1; dy = 0; break;
+            }
+
+            int nx = x + dx * 2;
+            int ny = y + dy * 2;
+
+            if (InBounds(nx, ny) && maze[ny, nx] == 0)
+            {
+                maze[y + dy, x + dx] = 1;
+                GenerateMaze(nx, ny);
+            }
+        }
+    }
+
+    static void Shuffle(int[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = rand.Next(i + 1);
+            (array[i], array[j]) = (array[j], array[i]);
+        }
+    }
+
+    static bool InBounds(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    static void PrintMaze()
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if ((y, x) == start)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("S ");
+                    Console.ResetColor();
+                }
+                else if ((y, x) == goal)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("G ");
+                    Console.ResetColor();
+                }
+                else if (maze[y, x] == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("█ ");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.Write("  ");
+                }
+            }
+            Console.WriteLine();
+        }
+    }
+}
+
+┌────────────────────────────┐
+│         程式啟動           │
+└────────────┬───────────────┘
+             │
+             ▼
+┌────────────────────────────┐
+│      初始化迷宮陣列         │
+│（全部設為牆 maze[y,x] = 0） │
+└────────────┬───────────────┘
+             ▼
+┌────────────────────────────┐
+│   使用遞迴回溯法產生迷宮    │
+│   (GenerateMaze 函式)      │
+└────────────┬───────────────┘
+             ▼
+┌────────────────────────────┐
+│     設定起點 (S) 與終點(G)  │
+└────────────┬───────────────┘
+             ▼
+┌────────────────────────────┐
+│        顯示初始迷宮         │
+│     (牆=█, 路=空白)         │
+└────────────┬───────────────┘
+             ▼
+┌────────────────────────────┐
+│    初始化 BFS 資料結構      │
+│  Queue, visited[], prev[]  │
+└────────────┬───────────────┘
+             ▼
+┌────────────────────────────┐
+│          開始 BFS 探索     │
+│   從 queue 拿出節點 (y,x)   │
+└────────────┬───────────────┘
+             ▼
+┌────────────────────────────┐
+│ 是否為目標點 G？            │◄────────────┐
+└─────┬─────────────┬────────┘             │
+      │ 否          │ 是                   │
+      ▼             ▼                      │
+┌────────────────┐  ┌────────────────────┐ │
+│ 探索鄰近節點    │  │ 開始回溯 prev[][]  │ │
+│ 並標記 visited  │  │ 畫出最短路徑 ●      │ │
+│ 動畫顯示 ░      │  └────────────┬───────┘ │
+└──────┬──────────┘               │         │
+       │                         ▼         │
+       └─────> 回到 BFS 主迴圈 ─────────────┘
+             （直到找到或 queue 空）
+
+             ▼
+┌────────────────────────────┐
+│ 顯示統計資訊：             │
+│ 探索次數 / 總耗時(ms)      │
+└────────────┬───────────────┘
+             ▼
+┌────────────────────────────┐
+│        等待按鍵結束        │
+└────────────────────────────┘
+
+Queue 
+ 是 BFS 的核心結構，用來存放下一步要探索的節點。
+
+visited 
+ 用來避免重複拜訪節點。
+
+prev 
+ 用來記錄路徑，方便在找到終點時回溯出最短路徑。
+
+BFS 
+ 一層層向外擴展，確保第一個找到的終點是最短路徑。
+
+--------------------------------------------------------
+c# map dfs
+
+█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
+S ●  ░ █ ░ ░ ░ ░ ░ █ ░ ░ ░ █ ░ ░ ░ █ ░ ░ ░ █ ░ ░ ░ ░ ░ ░ ░ █
+█ ●  ░ █ ░ █ ░ █ █ █ ░ █ ░ █ ░ █ ░ █ ░ █ ░ █ ░ █ █ █ ░ █ █ █
+█ ●  ░ ░ ░ █ ░ ░ ░ ░ ░ █ ░ ░ ░ █ ░ █ ░ █ ░ █ ░ ░ ░ █ ░ ░ ░ █
+█ ●  ░ █ █ █ █ █ █ █ █ █ █ █ █ █ ░ █ ░ █ ░ █ ░ █ █ █ █ █ ░ █
+█ ●  ░ ░ ░ █ ●      ●    ░ ░ ░ █ ░ ░ ░ █ ░ ░ ░ ░ ░ █
+█ ●  █ █ ░ █ ●  █ █ ●  ●  ●  ░ █ █ █ █ █ ░ █ ░ █ █ █ ░ █
+█ ●    ░ █ ●●●  ●    ●  ░ █ ░ ░ ░ █ ░ █ ░ █ ░ ░ ░ █
+█ █ █ ●  █ █ █ █ ●  █ █ █ █ ●  █ █ ░ █ ░ █ █ █ ░ █ ░ █ █ █
+█ ●●●  ●    ●        █ ●  ░ ░ ░ █ ░ ░ ░ ░ ░ █ ░ ░ ░ █
+█ ●  █ █ ●  ●  ●    █ █ █ ●  ░ █ █ █ █ █ █ █ ░ █ █ █ █ █
+█ ●    ●  ●  ●        █ ●  ░ ░ ░ ░ ░ ░ ░ █ ░ █ ░ ░ ░ █
+█ █ █ ●  ●  ●  ●  █ █   █ ●  █ █ █ █ ░ █ ░ █ █ █ ░ █ ░ █
+█   █ ●    ●  ●        █ ●  ●    ░ █ ░ ░ ░ ░ ░ █ ░ █
+█   █ █ █ █ █ ●  ●    █   █ ●  ●  ●  █ █ █ █ █ █ █ █ ░ █
+█           █ ●      █   █ ●    ●  ●        ░ █
+█ █ █   █   █ █ █ █ █   █ █ █ █ █ █ █ ●  ●  █ █ █ █ ●  ░ █
+█       █   █           █           █ ●  ●    █ ●●●  ░ █
+█   █ █ █ █ █   █   █ █ █   █ █ █   █ ●  ●    █ ●  █ █ ░ █
+█               █               █     ●        ●    G
+█ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █ █
+
+🔍 正在執行 DFS 探索迷宮...
+
+✅ 探索完成！總共探索格數：237
+⏱️ 耗時：7655 毫秒
+🔚 按任意鍵結束...
+
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
+
+class AnimatedDFSWithStats
+{
+    const int width = 31;
+    const int height = 21;
+    static int[,] maze = new int[height, width];
+    static Random rand = new Random();
+
+    static (int y, int x) start = (1, 0);
+    static (int y, int x) goal = (height - 2, width - 1);
+
+    static bool[,] visited = new bool[height, width];
+    static List<(int y, int x)> path = new List<(int y, int x)>();
+    static int stepCount = 0;
+
+    static void Main()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.CursorVisible = false;
+
+        GenerateMaze(1, 1);
+        maze[start.y, start.x] = 1;
+        maze[goal.y, goal.x] = 1;
+
+        PrintMaze();
+
+        Console.SetCursorPosition(0, height + 1);
+        Console.WriteLine("🔍 正在執行 DFS 探索迷宮...");
+
+        var sw = Stopwatch.StartNew();
+        bool found = DFS(start.y, start.x);
+        sw.Stop();
+
+        if (found)
+        {
+            // 繪製最終路徑
+            foreach (var pos in path)
+            {
+                if (pos != start && pos != goal)
+                {
+                    DrawAt(pos.x, pos.y, '●', ConsoleColor.Yellow);
+                    Thread.Sleep(10);
+                }
+            }
+
+            DrawAt(start.x, start.y, 'S', ConsoleColor.Green);
+            DrawAt(goal.x, goal.y, 'G', ConsoleColor.Red);
+
+            Console.SetCursorPosition(0, height + 3);
+            Console.WriteLine($"✅ 探索完成！總共探索格數：{stepCount}");
+            Console.WriteLine($"⏱️ 耗時：{sw.ElapsedMilliseconds} 毫秒");
+        }
+        else
+        {
+            Console.SetCursorPosition(0, height + 3);
+            Console.WriteLine("❌ 無法找到出口！");
+        }
+
+        Console.WriteLine("🔚 按任意鍵結束...");
+        Console.ReadKey();
+    }
+
+    static bool DFS(int y, int x)
+    {
+        if (!InBounds(x, y) || maze[y, x] == 0 || visited[y, x])
+            return false;
+
+        stepCount++;
+        visited[y, x] = true;
+
+        if ((y, x) != start && (y, x) != goal)
+            DrawAt(x, y, '░', ConsoleColor.Gray);
+
+        Thread.Sleep(20); // 動畫速度調整
+
+        if ((y, x) == goal)
+        {
+            path.Add((y, x));
+            return true;
+        }
+
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { -1, 0, 1, 0 };
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (DFS(ny, nx))
+            {
+                path.Add((y, x));  // 回溯路徑
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static void DrawAt(int x, int y, char symbol, ConsoleColor color)
+    {
+        Console.SetCursorPosition(x * 2, y);
+        Console.ForegroundColor = color;
+        Console.Write(symbol + " ");
+        Console.ResetColor();
+    }
+
+    static void GenerateMaze(int x, int y)
+    {
+        maze[y, x] = 1;
+        int[] dirs = { 0, 1, 2, 3 };
+        Shuffle(dirs);
+
+        foreach (int dir in dirs)
+        {
+            int dx = 0, dy = 0;
+            switch (dir)
+            {
+                case 0: dx = 0; dy = -1; break;
+                case 1: dx = 1; dy = 0; break;
+                case 2: dx = 0; dy = 1; break;
+                case 3: dx = -1; dy = 0; break;
+            }
+
+            int nx = x + dx * 2;
+            int ny = y + dy * 2;
+
+            if (InBounds(nx, ny) && maze[ny, nx] == 0)
+            {
+                maze[y + dy, x + dx] = 1;
+                GenerateMaze(nx, ny);
+            }
+        }
+    }
+
+    static void Shuffle(int[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = rand.Next(i + 1);
+            (array[i], array[j]) = (array[j], array[i]);
+        }
+    }
+
+    static bool InBounds(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    static void PrintMaze()
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if ((y, x) == start)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("S ");
+                    Console.ResetColor();
+                }
+                else if ((y, x) == goal)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("G ");
+                    Console.ResetColor();
+                }
+                else if (maze[y, x] == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("█ ");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.Write("  ");
+                }
+            }
+            Console.WriteLine();
+        }
+    }
+}
+
+--------------------------------------------------------------------------
+ c#  map 優化
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
+
+class AnimatedDFSWithColors
+{
+    const int width = 31;
+    const int height = 21;
+    static int[,] maze = new int[height, width];
+    static Random rand = new Random();
+
+    static (int y, int x) start = (1, 0);
+    static (int y, int x) goal = (height - 2, width - 1);
+
+    static bool[,] visited = new bool[height, width];
+    static List<(int y, int x)> path = new List<(int y, int x)>();
+    static int stepCount = 0;
+
+    static void Main()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.CursorVisible = false;
+
+        GenerateMaze(1, 1);
+        maze[start.y, start.x] = 1;
+        maze[goal.y, goal.x] = 1;
+
+        PrintMaze();
+
+        Console.SetCursorPosition(0, height + 1);
+        Console.WriteLine("🔍 正在執行 DFS 探索迷宮...");
+
+        var sw = Stopwatch.StartNew();
+        bool found = DFS(start.y, start.x);
+        sw.Stop();
+
+        if (found)
+        {
+            path.Reverse();
+            foreach (var pos in path)
+            {
+                if (pos != start && pos != goal)
+                {
+                    DrawAt(pos.x, pos.y, "■", ConsoleColor.Yellow);
+                    Thread.Sleep(60);
+                }
+            }
+
+            DrawAt(start.x, start.y, "🟢", ConsoleColor.Green);
+            DrawAt(goal.x, goal.y, "🔴", ConsoleColor.Red);
+
+            Console.SetCursorPosition(0, height + 3);
+            Console.WriteLine($"✅ 探索完成！總共探索格數：{stepCount}");
+            Console.WriteLine($"⏱️ 耗時：{sw.ElapsedMilliseconds} 毫秒");
+        }
+        else
+        {
+            Console.SetCursorPosition(0, height + 3);
+            Console.WriteLine("❌ 無法找到出口！");
+        }
+
+        Console.WriteLine("🔚 按任意鍵結束...");
+        Console.ReadKey();
+    }
+
+    static bool DFS(int y, int x)
+    {
+        if (!InBounds(x, y) || maze[y, x] == 0 || visited[y, x])
+            return false;
+
+        stepCount++;
+        visited[y, x] = true;
+
+        if ((y, x) != start && (y, x) != goal)
+            DrawAt(x, y, "·", ConsoleColor.DarkGray);
+
+        Thread.Sleep(40);
+
+        if ((y, x) == goal)
+        {
+            path.Add((y, x));
+            return true;
+        }
+
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { -1, 0, 1, 0 };
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = x + dx[i];
+            int ny = y + dy[i];
+            if (DFS(ny, nx))
+            {
+                path.Add((y, x));
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static void DrawAt(int x, int y, string symbol, ConsoleColor color)
+    {
+        Console.SetCursorPosition(x * 2, y);
+        Console.ForegroundColor = color;
+        Console.Write(symbol + " ");
+        Console.ResetColor();
+    }
+
+    static void GenerateMaze(int x, int y)
+    {
+        maze[y, x] = 1;
+        int[] dirs = { 0, 1, 2, 3 };
+        Shuffle(dirs);
+
+        foreach (int dir in dirs)
+        {
+            int dx = 0, dy = 0;
+            switch (dir)
+            {
+                case 0: dx = 0; dy = -1; break;
+                case 1: dx = 1; dy = 0; break;
+                case 2: dx = 0; dy = 1; break;
+                case 3: dx = -1; dy = 0; break;
+            }
+
+            int nx = x + dx * 2;
+            int ny = y + dy * 2;
+
+            if (InBounds(nx, ny) && maze[ny, nx] == 0)
+            {
+                maze[y + dy, x + dx] = 1;
+                GenerateMaze(nx, ny);
+            }
+        }
+    }
+
+    static void Shuffle(int[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = rand.Next(i + 1);
+            (array[i], array[j]) = (array[j], array[i]);
+        }
+    }
+
+    static bool InBounds(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    static void PrintMaze()
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if ((y, x) == start)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("🟢 ");
+                    Console.ResetColor();
+                }
+                else if ((y, x) == goal)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("🔴 ");
+                    Console.ResetColor();
+                }
+                else if (maze[y, x] == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("█ ");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.Write("  ");
+                }
+            }
+            Console.WriteLine();
+        }
+    }
+}
+-------------------------------------------------------------------------------
+c# a* map
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
+
+class AnimatedAStarWithColors
+{
+    const int width = 31;
+    const int height = 21;
+    static int[,] maze = new int[height, width];
+    static Random rand = new Random();
+
+    static (int y, int x) start = (1, 0);
+    static (int y, int x) goal = (height - 2, width - 1);
+
+    static void Main()
+    {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.CursorVisible = false;
+
+        GenerateMaze(1, 1);
+        maze[start.y, start.x] = 1;
+        maze[goal.y, goal.x] = 1;
+
+        PrintMaze();
+
+        Console.SetCursorPosition(0, height + 1);
+        Console.WriteLine("🔍 正在執行 A* 探索迷宮...");
+
+        var sw = Stopwatch.StartNew();
+        int steps = SolveMazeWithAStarAnimated(start, goal);
+        sw.Stop();
+
+        Console.SetCursorPosition(0, height + 3);
+        if (steps > 0)
+        {
+            Console.WriteLine($"✅ 探索完成！總共探索格數：{steps}");
+            Console.WriteLine($"⏱️ 耗時：{sw.ElapsedMilliseconds} 毫秒");
+        }
+        else
+        {
+            Console.WriteLine("❌ 無法找到出口！");
+        }
+        Console.WriteLine("🔚 按任意鍵結束...");
+        Console.ReadKey();
+    }
+
+    // A* 節點結構
+    class Node : IComparable<Node>
+    {
+        public int y, x;
+        public int g; // 從起點到此節點的距離
+        public int h; // 啟發式估價距離到目標
+        public int f => g + h;
+        public (int y, int x)? parent;
+
+        public Node(int y, int x, int g, int h, (int y, int x)? parent)
+        {
+            this.y = y; this.x = x; this.g = g; this.h = h; this.parent = parent;
+        }
+
+        // SortedSet 需要比較節點大小，f 小的優先
+        public int CompareTo(Node other)
+        {
+            int c = f.CompareTo(other.f);
+            if (c == 0) c = h.CompareTo(other.h); // h 小優先
+            if (c == 0)
+            {
+                c = y.CompareTo(other.y);
+                if (c == 0) c = x.CompareTo(other.x);
+            }
+            return c;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Node other)
+                return y == other.y && x == other.x;
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return y * 1000 + x;
+        }
+    }
+
+    static int SolveMazeWithAStarAnimated((int y, int x) start, (int y, int x) goal)
+    {
+        var openSet = new SortedSet<Node>();
+        var cameFrom = new (int y, int x)?[height, width];
+        var gScore = new int[height, width];
+        var visited = new bool[height, width];
+
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++)
+                gScore[i, j] = int.MaxValue;
+
+        int Heuristic(int y, int x)
+        {
+            return Math.Abs(goal.y - y) + Math.Abs(goal.x - x);
+        }
+
+        var startNode = new Node(start.y, start.x, 0, Heuristic(start.y, start.x), null);
+        openSet.Add(startNode);
+        gScore[start.y, start.x] = 0;
+
+        int stepCount = 0;
+
+        int[] dx = { 0, 1, 0, -1 };
+        int[] dy = { -1, 0, 1, 0 };
+
+        while (openSet.Count > 0)
+        {
+            var current = openSet.Min;
+            openSet.Remove(current);
+
+            stepCount++;
+            visited[current.y, current.x] = true;
+
+            if ((current.y, current.x) != start && (current.y, current.x) != goal)
+                DrawAt(current.x, current.y, "·", ConsoleColor.DarkGray);
+
+            Thread.Sleep(30);
+
+            if (current.y == goal.y && current.x == goal.x)
+            {
+                // 回溯路徑
+                var path = new List<(int y, int x)>();
+                var c = current;
+                while (c.parent != null)
+                {
+                    path.Add((c.y, c.x));
+                    c = new Node(c.parent.Value.y, c.parent.Value.x, 0, 0, cameFrom[c.y, c.x]);
+                }
+                path.Add(start);
+                path.Reverse();
+
+                foreach (var pos in path)
+                {
+                    if (pos != start && pos != goal)
+                    {
+                        DrawAt(pos.x, pos.y, "■", ConsoleColor.Yellow);
+                        Thread.Sleep(60);
+                    }
+                }
+                DrawAt(start.x, start.y, "🟢", ConsoleColor.Green);
+                DrawAt(goal.x, goal.y, "🔴", ConsoleColor.Red);
+
+                return stepCount;
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                int nx = current.x + dx[i];
+                int ny = current.y + dy[i];
+                if (!InBounds(nx, ny) || maze[ny, nx] == 0)
+                    continue;
+                if (visited[ny, nx])
+                    continue;
+
+                int tentative_gScore = gScore[current.y, current.x] + 1;
+                if (tentative_gScore < gScore[ny, nx])
+                {
+                    cameFrom[ny, nx] = (current.y, current.x);
+                    gScore[ny, nx] = tentative_gScore;
+                    var neighbor = new Node(ny, nx, tentative_gScore, Heuristic(ny, nx), (current.y, current.x));
+                    if (openSet.Contains(neighbor))
+                    {
+                        openSet.Remove(neighbor);
+                    }
+                    openSet.Add(neighbor);
+                }
+            }
+        }
+
+        return 0; // 無解
+    }
+
+    static void DrawAt(int x, int y, string symbol, ConsoleColor color)
+    {
+        Console.SetCursorPosition(x * 2, y);
+        Console.ForegroundColor = color;
+        Console.Write(symbol + " ");
+        Console.ResetColor();
+    }
+
+    static void GenerateMaze(int x, int y)
+    {
+        maze[y, x] = 1;
+        int[] dirs = { 0, 1, 2, 3 };
+        Shuffle(dirs);
+
+        foreach (int dir in dirs)
+        {
+            int dx = 0, dy = 0;
+            switch (dir)
+            {
+                case 0: dx = 0; dy = -1; break;
+                case 1: dx = 1; dy = 0; break;
+                case 2: dx = 0; dy = 1; break;
+                case 3: dx = -1; dy = 0; break;
+            }
+
+            int nx = x + dx * 2;
+            int ny = y + dy * 2;
+
+            if (InBounds(nx, ny) && maze[ny, nx] == 0)
+            {
+                maze[y + dy, x + dx] = 1;
+                GenerateMaze(nx, ny);
+            }
+        }
+    }
+
+    static void Shuffle(int[] array)
+    {
+        for (int i = array.Length - 1; i > 0; i--)
+        {
+            int j = rand.Next(i + 1);
+            (array[i], array[j]) = (array[j], array[i]);
+        }
+    }
+
+    static bool InBounds(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    static void PrintMaze()
+    {
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if ((y, x) == start)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("🟢 ");
+                    Console.ResetColor();
+                }
+                else if ((y, x) == goal)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write("🔴 ");
+                    Console.ResetColor();
+                }
+                else if (maze[y, x] == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.Write("█ ");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    Console.Write("  ");
+                }
+            }
+            Console.WriteLine();
+        }
+    }
+}
+
+要解迷宮，還是用 BFS、DFS、A* 最合適。
+
+演算法	時間 (約)					記憶體 (約)					最短路徑保證	備註
+BFS		O(V+E)，層層展開			高（整層節點）				是				最短路徑，記憶體消耗較大
+DFS		O(V+E)，深度優先探索		低（最大遞迴深度）			否				可能繞遠路，記憶體較省
+A*		O(V+E)，依啟發式效率決定	中高（節點狀態、優先佇列）	是				啟發式好效能高，需更多資訊儲存
+
+演算法		建議應用場景							注意事項
+BFS			小型迷宮或需要最短路徑					可能用較多記憶體，超大迷宮較慢
+DFS			大型迷宮或記憶體有限情況				找到路徑但不一定是最短，可能走冤枉路
+A*			中大型迷宮，有合適啟發式（heuristic）	需要計算啟發函數，實作較複雜
+
