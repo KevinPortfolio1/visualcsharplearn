@@ -1,0 +1,67 @@
+機器學習算法  
+
+1.c# 實際應用
+
+步驟 1：用 Python 訓練 GAN 模型（或下載已訓練模型）
+
+使用 Python + PyTorch 訓練好一個模型，例如 DCGAN、StyleGAN。
+# 例：DCGAN 訓練好後導出為 ONNX
+dummy_input = torch.randn(1, 100)  # 視模型架構而定
+torch.onnx.export(generator_model, dummy_input, "generator.onnx")
+
+步驟 2：用 C# 載入 ONNX 模型
+
+using Microsoft.ML.OnnxRuntime;
+using Microsoft.ML.OnnxRuntime.Tensors;
+
+var session = new InferenceSession("generator.onnx");
+
+// 建立輸入張量（以隨機向量為例）
+var input = new DenseTensor<float>(new[] { 1, 100 });
+var inputName = session.InputMetadata.Keys.First();
+
+var inputs = new List<NamedOnnxValue>
+{
+    NamedOnnxValue.CreateFromTensor(inputName, input)
+};
+
+// 推論
+using var results = session.Run(inputs);
+var outputTensor = results.First().AsEnumerable<float>().ToArray();
+
+
+步驟 3：處理輸出圖片
+
+將 GAN 輸出的向量轉換為圖片（可使用 System.Drawing 或 ImageSharp 處理）。
+
+// 假設 output 是長度為 H*W*C 的 array，你需要 reshape 並儲存成圖片
+
+
++--------------------+           +---------------------+           +-------------------------+
+|                    |           |                     |           |                         |
+|  1. 使用 Python    |           |  2. 將模型轉換為    |           |  3. 在 C# 中載入 ONNX   |
+|  訓練 GAN 模型     +----------->  ONNX 格式（export）+----------->  模型 (ONNX Runtime)     |
+|  (PyTorch / TF)    |           |                     |           |                         |
++--------------------+           +---------------------+           +-------------------------+
+                                                                          |
+                                                                          v
+                                                          +------------------------------+
+                                                          |  4. 準備輸入張量（如隨機向量） |
+                                                          +------------------------------+
+                                                                          |
+                                                                          v
+                                                          +------------------------------+
+                                                          |  5. 使用 ONNX Runtime 推論     |
+                                                          |  取得模型輸出（如圖片特徵）    |
+                                                          +------------------------------+
+                                                                          |
+                                                                          v
+                                                +-------------------------------------------+
+                                                |  6. 處理模型輸出為圖片（ImageSharp 等）  |
+                                                +-------------------------------------------+
+                                                                          |
+                                                                          v
+                                                 +----------------------------------------+
+                                                 |  7. 顯示、儲存或進一步分析圖片結果     |
+                                                 +----------------------------------------+
+
